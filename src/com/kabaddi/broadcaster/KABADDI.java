@@ -112,6 +112,8 @@ public class KABADDI extends Scene {
 //			LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tagID TIMER_SHOW_MINUTES 0; // 0 for Hide and 1 for Show.
 			
 			if(is_this_updating == false) {
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 1 ;");
+				
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + " " + ";");
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + match.getMatchIdent() + ";");
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
@@ -154,8 +156,48 @@ public class KABADDI extends Scene {
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tScore " + match.getHomeTeamScore() + "-" + match.getAwayTeamScore() + ";");
 			}
 			
-			for(int i=1;i<=7;i++) {
-				if(match.getApi_Match() != null) {
+			
+			if(match.getApi_Match() != null) {
+				for(PlayerStats plyr : match.getApi_Match().getHomeTeamStats().getPlayerStats()) {
+					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
+					    if(Integer.parseInt(match.getHomeTeam().getTeamApiId()) == Integer.parseInt(match.getApi_Match().getHomeTeam().getTeamApiId())) {
+					    	for(Player hs : match.getHomeSquad()) {
+					    		if(Integer.parseInt(hs.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
+					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 1;");
+									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName " + hs.getJersey_number() + " " + hs.getTicker_name() + ";");
+									
+									is_home_raider_in = true;
+					    		}
+					    	}
+					    }
+						break;
+					}else {
+						is_home_raider_in = false;
+					}
+				}
+				
+				
+				for(PlayerStats plyr : match.getApi_Match().getAwayTeamStats().getPlayerStats()) {
+					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
+						if(Integer.parseInt(match.getAwayTeam().getTeamApiId()) == Integer.parseInt(match.getApi_Match().getAwayTeam().getTeamApiId())) {
+					    	for(Player as : match.getAwaySquad()) {
+					    		if(Integer.parseInt(as.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
+					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 1;");
+									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName " + 
+											as.getJersey_number() + " " + as.getTicker_name() + ";");
+									is_away_raider_in = true;
+					    		}
+					    	}
+					    }
+						break;
+					}else {
+						is_away_raider_in = false;
+					}
+				}
+			}
+			
+			if(match.getApi_Match() != null) {
+				for(int i=1;i<=7;i++) {
 					if(i <= match.getApi_Match().getHomeTeamStats().getNo_of_players_on_court()) {
 						print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomePlayer" + i + " 100;");
 					}else {
@@ -169,50 +211,6 @@ public class KABADDI extends Scene {
 					}
 				}
 			}
-			
-			if(match.getApi_Match() != null) {
-				for(PlayerStats plyr : match.getApi_Match().getHomeTeamStats().getPlayerStats()) {
-					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
-						
-					    if(Integer.valueOf(match.getHomeTeam().getTeamApiId()) == Integer.valueOf(match.getApi_Match().getHomeTeamStats().getTeamId())) {
-					    	for(Player hs : match.getHomeSquad()) {
-					    		if(Integer.valueOf(hs.getPlayerAPIId()) == plyr.getPlayerId()) {
-					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 1;");
-									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName " + hs.getJersey_number() + " " + hs.getTicker_name() + ";");
-					    		}
-					    	}
-					    }
-						
-						is_home_raider_in = true;
-						
-						break;
-					}else {
-						is_home_raider_in = false;
-					}
-				}
-				
-				for(PlayerStats plyr : match.getApi_Match().getAwayTeamStats().getPlayerStats()) {
-					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
-						
-						if(Integer.valueOf(match.getAwayTeam().getTeamApiId()) == Integer.valueOf(match.getApi_Match().getAwayTeamStats().getTeamId())) {
-					    	for(Player as : match.getAwaySquad()) {
-					    		if(Integer.valueOf(as.getPlayerAPIId()) == plyr.getPlayerId()) {
-					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 1;");
-									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName " + 
-											as.getJersey_number() + " " + as.getTicker_name() + ";");									
-					    		}
-					    	}
-					    }
-						
-						is_away_raider_in = true;
-						
-						break;
-					}else {
-						is_away_raider_in = false;
-					}
-				}
-			}
-			
 			
 			if(is_home_raider_in == false) {
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
