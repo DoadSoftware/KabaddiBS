@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>KabaddiBS</groupId>
   <artifactId>KabaddiBS</artifactId>
-  <version>1.21</version>
+  <version>1.31</version>
   <packaging>war</packaging>
   <name>KabaddiBS</name>
   <properties>
@@ -17,7 +17,7 @@
     <groupId>com.kabaddi</groupId>
     <artifactId>KabaddiLibrary</artifactId>
     <scope>compile</scope>
-    <version>1.63</version>
+    <version>1.67</version>
 </dependency>
   
 <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
@@ -87,12 +87,13 @@
    <version>3.0.1</version>
    <scope>provided</scope>
 </dependency>
-
+<!-- https://mvnrepository.com/artifact/antlr/antlr -->
 <dependency>
     <groupId>antlr</groupId>
     <artifactId>antlr</artifactId>
     <version>2.7.7</version>
 </dependency>
+
 
 <dependency>
     <groupId>aopalliance</groupId>

@@ -25,10 +25,10 @@ function initialiseForm(whatToProcess, dataToProcess)
 	switch (whatToProcess) {
 	case 'TIME':
 		if(match_data) {
-			/*if(document.getElementById('match_time_hdr')) {
+			if(document.getElementById('match_time_hdr')) {
 				document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
 					millisToMinutesAndSeconds(match_data.clock.matchTotalMilliSeconds);
-			}*/
+			}
 		}
 		
 		break;
@@ -92,6 +92,9 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 	switch (whatToProcess) {
 	case 'LOGGER_FORM_KEYPRESS':
 		switch (dataToProcess) {
+		case '-':
+			processKabaddiProcedures('RESET-ALL-ANIMATION');
+			break;	
 		case 32:
 			processKabaddiProcedures('CLEAR-ALL');
 			break;
@@ -105,6 +108,12 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			break;
 		case 112:
 			processKabaddiProcedures('POPULATE-SCOREBUG');
+			break;
+		case 113:
+			processKabaddiProcedures('POPULATE-SCORELINE');
+			break;	
+		case 114:
+			processKabaddiProcedures('POPULATE-TOURNAMENT_LOGO');
 			break;
 		case 115:
 			processKabaddiProcedures('POPULATE-MATCH_ID');
@@ -153,9 +162,6 @@ function processUserSelection(whichInput)
 		processWaitingButtonSpinner('START_WAIT_TIMER');
 		processKabaddiProcedures('LOAD_MATCH',$('#select_kabaddi_matches option:selected'));
 		break;
-	case 'populate_starting_lineup_btn':
-		processKabaddiProcedures('POPULATE-STRATING_LINEUP');
-		break;
 	case 'cancel_graphics_btn':
 		$('#select_graphic_options_div').empty();
 		document.getElementById('select_graphic_options_div').style.display = 'none';
@@ -179,10 +185,7 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'LOAD_MATCH':
 		value_to_process = whichInput.val();
 		//alert(value_to_process);
-		break;
-	case 'POPULATE-STRATING_LINEUP':
-		value_to_process = $('#selectTeam option:selected').val();
-		break;		
+		break;	
 	}
 
 	$.ajax({    
@@ -191,43 +194,49 @@ function processKabaddiProcedures(whatToProcess, whichInput)
         data : 'whatToProcess=' + whatToProcess + '&valueToProcess=' + value_to_process, 
         dataType : 'json',
         success : function(data) {
-			//match_data = data;
+			match_data = data;
         	switch(whatToProcess) {
 			case 'READ-MATCH-AND-POPULATE':
 				if(data){
-					if($('#matchFileTimeStamp').val() != data.matchFileTimeStamp) {
+					/*if($('#matchFileTimeStamp').val() != data.matchFileTimeStamp) {
 						document.getElementById('matchFileTimeStamp').value = data.matchFileTimeStamp;
-						addItemsToList('LOAD_EVENTS',data);
-						//processKabaddiProcedures('READ-MATCH-AND-POPULATE',null);
+						processKabaddiProcedures('READ-MATCH-AND-POPULATE',null);
 						match_data = data;
-					}
+					}*/
 					processKabaddiProcedures('READ-MATCH-AND-POPULATE',null);
+						match_data = data;
+					addItemsToList('LOAD_EVENTS',data);
+					//processKabaddiProcedures('READ-MATCH-AND-POPULATE',null);
+					
+					if(data.clock) {
+						if(document.getElementById('match_time_hdr')) {
+							document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
+								millisToMinutesAndSeconds(data.clock.matchTotalMilliSeconds);
+						}
+					}
 				}
 				break;
-			/*case 'READ_CLOCK':
-				if(data.clock) {
-					if(document.getElementById('match_time_hdr')) {
-						document.getElementById('match_time_hdr').innerHTML = 'MATCH TIME : ' + 
-							millisToMinutesAndSeconds(data.clock.matchTotalMilliSeconds);
-					}
-				}
-				break;*/
-			
 			case 'LOAD_MATCH':
 				match_data = data;
 				addItemsToList('LOAD_EVENTS',data);
+				processKabaddiProcedures('READ-MATCH-AND-POPULATE',null);
 				document.getElementById('kabaddi_div').style.display = '';
 				document.getElementById('select_event_div').style.display = '';
-				setInterval(displayMatchTime, 500);
+				//setInterval(displayMatchTime, 500);
 				break;
 				
-        	case 'POPULATE-SCOREBUG':
-        	case 'POPULATE-MATCH_ID': case 'POPULATE-FF_SCORELINE': case 'POPULATE-STRATING_LINEUP': case 'POPULATE-TEAMS_LOGOS':
+        	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO':
         		if(confirm('Animate In?') == true){
 					switch(whatToProcess){
 					case 'POPULATE-SCOREBUG':
 						processKabaddiProcedures('ANIMATE-IN-SCOREBUG');		
 						break;
+					case 'POPULATE-SCORELINE':
+						processKabaddiProcedures('ANIMATE-IN-SCORELINE');		
+						break;
+					case 'POPULATE-TOURNAMENT_LOGO':
+						processKabaddiProcedures('ANIMATE-IN-TOURNAMENT_LOGO');		
+						break;	
 					}
 				}
 				break;
@@ -244,81 +253,6 @@ function addItemsToList(whatToProcess, dataToProcess)
 	var div,row,header_text,event_text,select,option,tr,th,thead,text,table,tbody,teamName;
 	var cellCount=0;
 	switch (whatToProcess) {
-	case 'STARTING_LINE_UP_OPTION':
-		switch ($('#selectedBroadcaster').val()) {
-		case 'PHL_2023':
-
-			$('#select_graphic_options_div').empty();
-	
-			header_text = document.createElement('h6');
-			header_text.innerHTML = 'Select Graphic Options';
-			document.getElementById('select_graphic_options_div').appendChild(header_text);
-			
-			table = document.createElement('table');
-			table.setAttribute('class', 'table table-bordered');
-					
-			tbody = document.createElement('tbody');
-	
-			table.appendChild(tbody);
-			document.getElementById('select_graphic_options_div').appendChild(table);
-			
-			row = tbody.insertRow(tbody.rows.length);
-			
-			switch(whatToProcess){
-				case 'STARTING_LINE_UP_OPTION':
-					select = document.createElement('select');
-					select.id = 'selectTeam';
-					select.name = select.id;
-					
-					option = document.createElement('option');
-					option.value = match_data.homeTeamId;
-					option.text = match_data.homeTeam.teamName1;
-					select.appendChild(option);
-					
-					option = document.createElement('option');
-					option.value = match_data.awayTeamId;
-					option.text = match_data.awayTeam.teamName1;
-					select.appendChild(option);
-					
-					select.setAttribute('onchange',"processUserSelection(this)");
-					row.insertCell(cellCount).appendChild(select);
-					cellCount = cellCount + 1;
-					
-					break;
-				}
-			
-			option = document.createElement('input');
-		    option.type = 'button';
-			switch (whatToProcess) {
-			case 'STARTING_LINE_UP_OPTION':
-			    option.name = 'populate_starting_lineup_btn';
-			    option.value = 'Populate Stats';
-				break;
-			}
-		    option.id = option.name;
-		    option.setAttribute('onclick',"processUserSelection(this)");
-		    
-		    div = document.createElement('div');
-		    div.append(option);
-
-			option = document.createElement('input');
-			option.type = 'button';
-			option.name = 'cancel_graphics_btn';
-			option.id = option.name;
-			option.value = 'Cancel';
-			option.setAttribute('onclick','processUserSelection(this)');
-	
-		    div.append(option);
-		    
-		    row.insertCell(cellCount).appendChild(div);
-		    cellCount = cellCount + 1;
-		    
-			document.getElementById('select_graphic_options_div').style.display = '';
-
-			break;
-		}
-		break;
-
 	case 'LOAD_EVENTS':
 		
 		$('#select_event_div').empty();
@@ -335,10 +269,10 @@ function addItemsToList(whatToProcess, dataToProcess)
 			row = tbody.insertRow(tbody.rows.length);
 			header_text = document.createElement('h6');
 			header_text.id = 'match_time_hdr';
-			header_text.innerHTML = 'KABADDI';
+			header_text.innerHTML = 'Match Time: 00:00';
 			row.insertCell(0).appendChild(header_text);
 			
-			if(dataToProcess.events != null && dataToProcess.events.length > 0) {
+			/*if(dataToProcess.events != null && dataToProcess.events.length > 0) {
 				max_cols = dataToProcess.events.length;
 				if (max_cols > 20) {
 					max_cols = 20;
@@ -372,7 +306,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 				}
 				event_text.innerHTML = 'Events: ' + event_text.innerHTML;
 				row.insertCell(1).appendChild(event_text);
-			}
+			}*/
 			
 			
 			table = document.createElement('table');
@@ -397,7 +331,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			table.appendChild(thead);
 			document.getElementById('select_event_div').appendChild(table);
 			
-			tbody = document.createElement('tbody');
+			/*tbody = document.createElement('tbody');
 			for(var i = 0; i <= dataToProcess.homeSquad.length - 1; i++) {
 				row = tbody.insertRow(tbody.rows.length);
 				for(var j = 1; j <= 2; j++) {
@@ -417,9 +351,9 @@ function addItemsToList(whatToProcess, dataToProcess)
 			row = tbody.insertRow(tbody.rows.length);
 			header_text = document.createElement('header');
 			header_text.innerHTML = 'Substitutes';
-			row.insertCell(0).appendChild(header_text);
+			row.insertCell(0).appendChild(header_text);*/
 			
-			max_cols = dataToProcess.homeSubstitutes.length;
+			/*max_cols = dataToProcess.homeSubstitutes.length;
 			if(dataToProcess.homeSubstitutes.length < dataToProcess.awaySubstitutes.length) {
 				max_cols = dataToProcess.awaySubstitutes.length;
 			}
@@ -468,7 +402,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 			}				
 
 			table.appendChild(tbody);
-			document.getElementById('select_event_div').appendChild(table);
+			document.getElementById('select_event_div').appendChild(table);*/
 		}
 	    
 		break;

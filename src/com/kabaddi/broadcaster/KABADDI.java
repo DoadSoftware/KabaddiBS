@@ -35,7 +35,12 @@ public class KABADDI extends Scene {
 
 	public ScoreBug updateScoreBug(List<Scene> scenes, Match match, PrintWriter print_writer)
 			throws InterruptedException, MalformedURLException, IOException {
+		
+		if(which_graphics_onscreen.equalsIgnoreCase("SCOREBUG")) {
 			scorebug = populateScoreBug(true, scorebug, print_writer,match,session_selected_broadcaster);
+		}else if(which_graphics_onscreen.equalsIgnoreCase("SCORELINE")) {
+			scorebug = populateScoreLine(true, scorebug, print_writer,match,session_selected_broadcaster);
+		}
 		return scorebug;
 	}
 	
@@ -43,10 +48,10 @@ public class KABADDI extends Scene {
 			throws InterruptedException, NumberFormatException, MalformedURLException, IOException, JAXBException {
 		switch (whatToProcess.toUpperCase()) {
 		//ScoreBug
-		case "POPULATE-SCOREBUG":
+		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO":
 			
 		switch (whatToProcess.toUpperCase()) {
-		case "POPULATE-SCOREBUG": 
+		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO":
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
 		}
@@ -54,17 +59,33 @@ public class KABADDI extends Scene {
 		case "POPULATE-SCOREBUG":
 			populateScoreBug(false, scorebug, print_writer, match,session_selected_broadcaster);
 			break;
+		case "POPULATE-SCORELINE":
+			populateScoreLine(false, scorebug, print_writer, match,session_selected_broadcaster);
+			break;
+		case "POPULATE-TOURNAMENT_LOGO":
+			populateTournamentLogo(false, scorebug, print_writer, match,session_selected_broadcaster);
+			break;
 		}
 			
-		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG":
-		
-		case "ANIMATE-OUT":
+		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":
+		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO":
+			
 			switch (whatToProcess.toUpperCase()) {
 
 			case "ANIMATE-IN-SCOREBUG":
 				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
 				is_infobar = true;
 				which_graphics_onscreen = "SCOREBUG";
+				break;
+			case "ANIMATE-IN-SCORELINE": 
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
+				is_infobar = true;
+				which_graphics_onscreen = "SCORELINE";
+				break;
+			case "ANIMATE-IN-TOURNAMENT_LOGO":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
+				is_infobar = true;
+				which_graphics_onscreen = "TOURNAMENT_LOGO";
 				break;
 			case "CLEAR-ALL":
 				print_writer.println("LAYER1*EVEREST*SINGLE_SCENE CLEAR;");
@@ -77,6 +98,10 @@ public class KABADDI extends Scene {
 				processAnimation(print_writer, "Out", "START", session_selected_broadcaster,1);
 				is_infobar = false;
 				which_graphics_onscreen="";
+				break;
+			case "RESET-ALL-ANIMATION":
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tAwayRaiderClock TIMER_OFFSET 30;");
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tHomeRaiderClock TIMER_OFFSET 30;");
 				break;
 			}
 			break;
@@ -100,7 +125,7 @@ public class KABADDI extends Scene {
 		}
 	}
 	
-	public ScoreBug populateScoreBug(boolean is_this_updating, ScoreBug scorebug, PrintWriter print_writer,
+	/*public ScoreBug populateScoreBug(boolean is_this_updating, ScoreBug scorebug, PrintWriter print_writer,
 			Match match, String selectedbroadcaster) throws IOException {
 		if (match == null) {
 			System.out.println("ERROR: ScoreBug -> Match is null");
@@ -132,6 +157,13 @@ public class KABADDI extends Scene {
 			}
 			
 			if(match.getClock() != null && match.getClock().getMatchHalves() != null) {
+				
+//				if(match.getClock().getMatchTimeStatus().equalsIgnoreCase(KabaddiUtil.PAUSE)) {
+//					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*FUNCTION*TIMER SET PAUSE INVOKE;");
+//				}else if(match.getClock().getMatchTimeStatus().equalsIgnoreCase(KabaddiUtil.START)) {
+//					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*FUNCTION*TIMER SET CONTINUE INVOKE;");
+//				}
+				
 				if(match.getClock().getMatchHalves().equalsIgnoreCase(KabaddiUtil.FIRST)) {
 					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "1st HALF" + ";");
 				}else if(match.getClock().getMatchHalves().equalsIgnoreCase(KabaddiUtil.SECOND)) {
@@ -222,8 +254,212 @@ public class KABADDI extends Scene {
 		}
 		
 		return scorebug;
+	}*/
+	
+	public ScoreBug populateTournamentLogo(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
+	        Match match, String selectedBroadcaster) throws IOException {
+	    if (match == null) {
+	        System.out.println("ERROR: ScoreBug -> Match is null");
+	        return scorebug;
+	    }
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 0;");
+	   return scorebug;
 	}
 	
+	public ScoreBug populateScoreLine(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
+	        Match match, String selectedBroadcaster) throws IOException {
+	    if (match == null) {
+	        System.out.println("ERROR: ScoreBug -> Match is null");
+	        return scorebug;
+	    }
+
+	    if (!isThisUpdating) {
+	    	printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 2;");
+		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
+		            match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 
+		            match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+	    }
+
+	    updateScore(printWriter, match);
+	    
+	    updateScorelineMatchClock(printWriter, match);
+
+	    return scorebug;
+	}
+	
+	public ScoreBug populateScoreBug(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
+	        Match match, String selectedBroadcaster) throws IOException {
+	    if (match == null) {
+	        System.out.println("ERROR: ScoreBug -> Match is null");
+	        return scorebug;
+	    }
+
+	    if (!isThisUpdating) {
+	        updateStaticMatchInfo(printWriter, match);
+	    }
+
+	    updateScore(printWriter, match);
+	    
+	    updateMatchClock(printWriter, match);
+
+	    updateRaiderInfo(printWriter, match);
+
+	    updatePlayerStatus(printWriter, match);
+
+	    return scorebug;
+	}
+
+	private void updateStaticMatchInfo(PrintWriter printWriter, Match match) {
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 1;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + match.getMatchIdent() + ";");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
+	            match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 
+	            match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderClock 0;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderClock 0;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName ;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName ;");
+	}
+
+	private void updateMatchClock(PrintWriter printWriter, Match match) {
+	    if (match.getClock() != null && match.getClock().getMatchHalves() != null) {
+	        String matchHalf = match.getClock().getMatchHalves();
+	        String subHeader;
+	        
+	        switch (matchHalf) {
+		        case "first":
+	                subHeader = "1st HALF";
+	                break;
+	            case "second":
+	                subHeader = "2nd HALF";
+	                break;
+	            case "extra1":
+	                subHeader = "ET 1";
+	                break;
+	            case "extra2":
+	                subHeader = "ET 2";
+	                break;
+	            case "half":
+	                subHeader = "HALF TIME";
+	                break;
+	            case "full":
+	                subHeader = "FULL TIME";
+	                break;
+	            default:
+	                subHeader = "";
+	                break;
+	        }
+
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + subHeader + ";");
+	    }
+	}
+
+
+	private void updateScore(PrintWriter printWriter, Match match) {
+	    String score = match.getHomeTeamScore() + "-" + match.getAwayTeamScore();
+	    if (match.getHomeTeamScore() == 0 && match.getAwayTeamScore() == 0) {
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 0 ;");
+	    } else {
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 1 ;");
+	    }
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tScore " + score + ";");
+	}
+
+	private void updateRaiderInfo(PrintWriter printWriter, Match match) {
+	    boolean isHomeRaiderIn = false;
+	    boolean isAwayRaiderIn = false;
+
+	    if (match.getApi_Match() != null) {
+	        isHomeRaiderIn = updateRaiderName(printWriter, match, true);
+	        isAwayRaiderIn = updateRaiderName(printWriter, match, false);
+	    }
+
+	    if (!isHomeRaiderIn) {
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
+	    }
+
+	    if (!isAwayRaiderIn) {
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
+	    }
+	}
+
+	private boolean updateRaiderName(PrintWriter printWriter, Match match, boolean isHomeTeam) {
+	    List<PlayerStats> playerStatsList = isHomeTeam ? match.getApi_Match().getHomeTeamStats().getPlayerStats() 
+	            : match.getApi_Match().getAwayTeamStats().getPlayerStats();
+	    List<Player> squad = isHomeTeam ? match.getHomeSquad() : match.getAwaySquad();
+	    String teamApiId = isHomeTeam ? match.getHomeTeam().getTeamApiId() : match.getAwayTeam().getTeamApiId();
+
+	    for (PlayerStats plyr : playerStatsList) {
+	        if (plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
+	            if (Integer.parseInt(teamApiId) == Integer.valueOf(plyr.getPlayerId())) {
+	                for (Player player : squad) {
+	                    if (Integer.parseInt(player.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
+	                        String raiderName = player.getJersey_number() + " " + player.getTicker_name();
+	                        if (isHomeTeam) {
+	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 1;");
+	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName " + raiderName + ";");
+	                        } else {
+	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 1;");
+	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName " + raiderName + ";");
+	                        }
+	                        return true;
+	                    }
+	                }
+	            }
+	            break;
+	        }
+	    }
+	    return false;
+	}
+
+	private void updatePlayerStatus(PrintWriter printWriter, Match match) {
+	    if (match.getApi_Match() != null) {
+	        for (int i = 1; i <= 7; i++) {
+	            int homeStatus = i <= match.getApi_Match().getHomeTeamStats().getNo_of_players_on_court() ? 100 : 50;
+	            int awayStatus = i <= match.getApi_Match().getAwayTeamStats().getNo_of_players_on_court() ? 100 : 50;
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomePlayer" + i + " " + homeStatus + ";");
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayPlayer" + i + " " + awayStatus + ";");
+	        }
+	    }
+	}
+
+	private void updateScorelineMatchClock(PrintWriter printWriter, Match match) {
+	    if (match.getClock() != null && match.getClock().getMatchHalves() != null) {
+	        String matchHalf = match.getClock().getMatchHalves();
+	        String subHeader;
+	        
+	        switch (matchHalf) {
+	            case "first":
+	                subHeader = "1st HALF";
+	                break;
+	            case "second":
+	                subHeader = "2nd HALF";
+	                break;
+	            case "extra1":
+	                subHeader = "ET 1";
+	                break;
+	            case "extra2":
+	                subHeader = "ET 2";
+	                break;
+	            case "half":
+	                subHeader = "HALF TIME";
+	                break;
+	            case "full":
+	                subHeader = "FULL TIME";
+	                break;
+	            default:
+	                subHeader = "";
+	                break;
+	        }
+
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader03 " + subHeader + ";");
+	    }
+	}
 	public void populateMatchId(PrintWriter print_writer,String viz_sence_path,int side, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
 		if (match == null) {
 			System.out.println("ERROR: ScoreBug -> Match is null");
