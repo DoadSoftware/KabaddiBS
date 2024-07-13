@@ -81,9 +81,10 @@ function uploadFormDataToSessionObjects(whatToProcess)
         	}
         	
         },    
-        error : function(e) {    
-       	 	console.log('Error occured in uploadFormDataToSessionObjects with error description = ' + e);     
-        }    
+        error: function(jqXHR, textStatus, errorThrown) {    
+        	console.error('Error occurred in ' + whatToProcess + ' with error description: ' + textStatus, errorThrown);
+        }
+    
     });		
 	
 }
@@ -243,9 +244,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
         	}
     		processWaitingButtonSpinner('END_WAIT_TIMER');
 	    },    
-	    error : function(e) {    
-	  	 	console.log('Error occured in ' + whatToProcess + ' with error description = ' + e);     
-	    }    
+	    error: function(jqXHR, textStatus, errorThrown) {    
+        	console.error('Error occurred in ' + whatToProcess + ' with error description: ' + textStatus, errorThrown);
+        }    
 	});
 }
 function addItemsToList(whatToProcess, dataToProcess)

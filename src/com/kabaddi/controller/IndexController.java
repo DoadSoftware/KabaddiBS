@@ -1,5 +1,6 @@
 package com.kabaddi.controller;
 
+import java.io.Console;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -16,6 +17,8 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+
+import org.apache.http.HttpResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -57,6 +60,7 @@ public class IndexController
 	public static EventFile session_event;
 	public static Clock session_clock = new Clock();
 	public static Configurations session_Configurations;
+	public static int counter;
 	
 	List<Scene> session_selected_scenes = new ArrayList<Scene>();
 	public static String session_selected_broadcaster;
@@ -122,6 +126,8 @@ public class IndexController
 //		model.addAttribute("licence_expiry_message",
 //			"Software licence expires on " + new SimpleDateFormat("E, dd MMM yyyy").format(
 //			new SimpleDateFormat("yyyy-MM-dd").parse(expiry_date)));
+		
+		objectMapper.configure(Feature.AUTO_CLOSE_SOURCE, true);
 		
 		session_match = new Match();
 		session_event = new EventFile();
@@ -205,61 +211,80 @@ public class IndexController
 
 		case "READ-MATCH-AND-POPULATE":
 			
-			objectMapper.configure(Feature.AUTO_CLOSE_SOURCE, true);
-			
-			if(session_match != null && !valueToProcess.equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
-					new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified())))
-			{
-				session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, (Match) JAXBContext.newInstance(Match.class).createUnmarshaller()
-						.unmarshal(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName())));
+			try {
+				counter++;
 				
-				session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
-						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
-				
-//				session_event = (EventFile) JAXBContext.newInstance(EventFile.class).createUnmarshaller().unmarshal(
-//						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
-//				session_match.setEvents(session_event.getEvents());
-			}
-			
-			if(session_match != null && session_selected_broadcaster != null) {
-//				session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, (Match) JAXBContext.newInstance(Match.class).createUnmarshaller()
-//						.unmarshal(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName())));
-//				
-//				session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
-//						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
-				
-				if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON).exists()) {
-			        try {
-			        	if(session_match != null) {
-				        	session_match.setClock(objectMapper.readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON), Clock.class));
-			        	}
-			        } catch (MismatchedInputException e) {
-			        	e.printStackTrace();
-			        } catch (IOException e) {
-			            e.printStackTrace();
-			        }
+				if(counter == 15) {
+					
+					if(session_Configurations.getPortNumber() != 0) {
+						session_socket = new Socket(session_Configurations.getIpAddress(), Integer.valueOf(session_Configurations.getPortNumber()));
+						print_writer = new PrintWriter(session_socket.getOutputStream(), true);
+					}
+					counter = 0;
 				}
 				
-				if(session_match != null) {
-					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
-						try {
-							session_match.setApi_Match(objectMapper.readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() 
-							+ "-in-match" + KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+				if(session_match != null && !valueToProcess.equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
+						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified())))
+				{
+					session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, (Match) JAXBContext.newInstance(Match.class).createUnmarshaller()
+							.unmarshal(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName())));
+					
+					session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
+							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
+					
+//					session_event = (EventFile) JAXBContext.newInstance(EventFile.class).createUnmarshaller().unmarshal(
+//							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY + session_match.getMatchFileName()));
+//					session_match.setEvents(session_event.getEvents());
+				}
+				
+				if(session_match != null && session_selected_broadcaster != null) {
+//					session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, (Match) JAXBContext.newInstance(Match.class).createUnmarshaller()
+//							.unmarshal(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName())));
+//					
+//					session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
+//							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
+					
+					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON).exists()) {
+				        try {
+				        	if(session_match != null) {
+					        	session_match.setClock(objectMapper.readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON), Clock.class));
+				        	}
 				        } catch (MismatchedInputException e) {
 				        	e.printStackTrace();
 				        } catch (IOException e) {
 				            e.printStackTrace();
 				        }
 					}
-				}
-				
-				if(session_selected_broadcaster != null) {
-					switch (session_selected_broadcaster) {
-					case KabaddiUtil.KABADDI:
-						this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, print_writer);
-						break;
+					
+					if(session_match != null) {
+						if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() + "-in-match" + KabaddiUtil.JSON_EXTENSION).exists()) {
+							try {
+								session_match.setApi_Match(objectMapper.readValue(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.DESTINATION_DIRECTORY + session_match.getMatchId() 
+								+ "-in-match" + KabaddiUtil.JSON_EXTENSION), Api_Match.class));
+					        } catch (MismatchedInputException e) {
+					        	e.printStackTrace();
+					        } catch (IOException e) {
+					            e.printStackTrace();
+					        }
+						}
+					}
+					
+					if(session_selected_broadcaster != null) {
+						switch (session_selected_broadcaster) {
+						case KabaddiUtil.KABADDI:
+							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, print_writer);
+							break;
+						}
 					}
 				}
+			} catch (Exception e) {
+	            // Handle specific exceptions
+	            e.printStackTrace(); // Print stack trace for server-side debugging
+	            
+	            // Return error message as JSON string
+	            JSONObject errorResponse = new JSONObject();
+	            errorResponse.put("error", "Error processing request: " + e.getMessage());
+	            return errorResponse.toString();
 			}
 			
 			return JSONObject.fromObject(session_match).toString();
