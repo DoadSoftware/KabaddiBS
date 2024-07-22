@@ -60,6 +60,7 @@ public class IndexController
 	public static EventFile session_event;
 	public static Clock session_clock = new Clock();
 	public static Configurations session_Configurations;
+	public static  Match SwapMatch = new Match();
 	public static int counter;
 	
 	List<Scene> session_selected_scenes = new ArrayList<Scene>();
@@ -173,6 +174,15 @@ public class IndexController
 					throws JAXBException, IllegalAccessException, InvocationTargetException, IOException, NumberFormatException, InterruptedException
 	{	
 		switch (whatToProcess.toUpperCase()) {
+		case "SWAP_DATA":
+			if(this_Kabaddi.scorebug.isValue_is_swap() == false) {
+				SwapMatch = KabaddiFunctions.SwapMatch(session_match);
+				this_Kabaddi.scorebug.setValue_is_swap(true);
+			}else if(this_Kabaddi.scorebug.isValue_is_swap() == true) {
+				SwapMatch = session_match;
+				this_Kabaddi.scorebug.setValue_is_swap(false);
+			}
+			return JSONObject.fromObject(session_match).toString();
 		case KabaddiUtil.LOAD_MATCH:
 			objectMapper.configure(Feature.AUTO_CLOSE_SOURCE, true);
 			
@@ -206,7 +216,7 @@ public class IndexController
 			} else {
 				session_match.setClock(new Clock());
 			}
-			
+			this_Kabaddi.scorebug.setValue_is_swap(false);
 			return JSONObject.fromObject(session_match).toString();
 
 		case "READ-MATCH-AND-POPULATE":
@@ -269,10 +279,16 @@ public class IndexController
 						}
 					}
 					
+					if(this_Kabaddi.scorebug.isValue_is_swap() == false) {
+						SwapMatch = session_match;
+					}else if(this_Kabaddi.scorebug.isValue_is_swap() == true) {
+						SwapMatch = KabaddiFunctions.SwapMatch(session_match);
+					}
+					
 					if(session_selected_broadcaster != null) {
 						switch (session_selected_broadcaster) {
 						case KabaddiUtil.KABADDI:
-							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, print_writer);
+							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
 							break;
 						}
 					}
@@ -293,7 +309,7 @@ public class IndexController
 			
 			switch (session_selected_broadcaster) {
 			case KabaddiUtil.KABADDI:
-				this_Kabaddi.ProcessGraphicOption(whatToProcess, session_match, kabaddiService, print_writer, session_selected_scenes,valueToProcess);
+				this_Kabaddi.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
 				break;
 			}
 			return JSONObject.fromObject(session_match).toString();

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>KabaddiBS</groupId>
   <artifactId>KabaddiBS</artifactId>
-  <version>1.39</version>
+  <version>1.42</version>
   <packaging>war</packaging>
   <name>KabaddiBS</name>
   <properties>
@@ -17,7 +17,7 @@
     <groupId>com.kabaddi</groupId>
     <artifactId>KabaddiLibrary</artifactId>
     <scope>compile</scope>
-    <version>1.70</version>
+    <version>1.72</version>
 </dependency>
   
 <!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->

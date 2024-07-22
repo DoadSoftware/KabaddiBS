@@ -4,9 +4,16 @@ public class ScoreBug {
 	
 	private boolean scorebug_on_screen;
 	public boolean game_in = false;
+	private boolean value_is_swap;
 	public boolean start_pause;
 	private String scorebug_stat;
 	private String last_scorebug_stat;
+	
+	public ScoreBug() {
+		super();
+		this.game_in = false;
+		this.value_is_swap=false;
+	}
 	
 	public boolean isScorebug_on_screen() {
 		return scorebug_on_screen;
@@ -38,5 +45,10 @@ public class ScoreBug {
 	public void setGame_in(boolean game_in) {
 		this.game_in = game_in;
 	}
-	
+	public boolean isValue_is_swap() {
+		return value_is_swap;
+	}
+	public void setValue_is_swap(boolean value_is_swap) {
+		this.value_is_swap = value_is_swap;
+	}
 }

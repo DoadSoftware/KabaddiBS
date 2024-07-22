@@ -33,42 +33,44 @@ public class KABADDI extends Scene {
 		super();
 	}
 
-	public ScoreBug updateScoreBug(List<Scene> scenes, Match match, PrintWriter print_writer)
-			throws InterruptedException, MalformedURLException, IOException {
+	public ScoreBug updateScoreBug(List<Scene> scenes, Match match, Match swapMatch, PrintWriter print_writer)throws InterruptedException, MalformedURLException, IOException {
 		
 		if(which_graphics_onscreen.equalsIgnoreCase("SCOREBUG")) {
-			scorebug = populateScoreBug(true, scorebug, print_writer,match,session_selected_broadcaster);
+			scorebug = populateScoreBug(true, scorebug, print_writer, swapMatch,session_selected_broadcaster);
 		}else if(which_graphics_onscreen.equalsIgnoreCase("SCORELINE")) {
-			scorebug = populateScoreLine(true, scorebug, print_writer,match,session_selected_broadcaster);
+			scorebug = populateScoreLine(true, scorebug, print_writer, match,session_selected_broadcaster);
 		}
 		return scorebug;
 	}
 	
-	public Object ProcessGraphicOption(String whatToProcess, Match match, KabaddiService kabaddiService,PrintWriter print_writer, List<Scene> scenes, String valueToProcess)
+	public Object ProcessGraphicOption(String whatToProcess, Match match, Match swapMatch, KabaddiService kabaddiService,PrintWriter print_writer, List<Scene> scenes, String valueToProcess)
 			throws InterruptedException, NumberFormatException, MalformedURLException, IOException, JAXBException {
 		switch (whatToProcess.toUpperCase()) {
 		//ScoreBug
-		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO":
+		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
 			
 		switch (whatToProcess.toUpperCase()) {
-		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO":
+		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
 		}
 		switch (whatToProcess.toUpperCase()) {
 		case "POPULATE-SCOREBUG":
-			populateScoreBug(false, scorebug, print_writer, match,session_selected_broadcaster);
+			populateScoreBug(false, scorebug, print_writer, swapMatch,session_selected_broadcaster);
 			break;
 		case "POPULATE-SCORELINE":
 			populateScoreLine(false, scorebug, print_writer, match,session_selected_broadcaster);
 			break;
 		case "POPULATE-TOURNAMENT_LOGO":
-			populateTournamentLogo(false, scorebug, print_writer, match,session_selected_broadcaster);
+			populateTournamentLogo(false, scorebug, print_writer, match, session_selected_broadcaster);
+			break;
+		case "POPULATE-GOLDEN_RAID":
+			populateGoldenRaid(false, scorebug, print_writer, match, session_selected_broadcaster);
 			break;
 		}
 			
 		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":
-		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO":
+		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO": case "ANIMATE-IN-GOLDEN_RAID":
 			
 			switch (whatToProcess.toUpperCase()) {
 
@@ -86,6 +88,11 @@ public class KABADDI extends Scene {
 				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
 				is_infobar = true;
 				which_graphics_onscreen = "TOURNAMENT_LOGO";
+				break;
+			case "ANIMATE-IN-GOLDEN_RAID":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
+				is_infobar = true;
+				which_graphics_onscreen = "GOLDEN_RAID";
 				break;
 			case "CLEAR-ALL":
 				print_writer.println("LAYER1*EVEREST*SINGLE_SCENE CLEAR;");
@@ -265,6 +272,17 @@ public class KABADDI extends Scene {
 	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 0;");
 	   return scorebug;
 	}
+	public ScoreBug populateGoldenRaid(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
+	        Match match, String selectedBroadcaster) throws IOException {
+	    if (match == null) {
+	        System.out.println("ERROR: ScoreBug -> Match is null");
+	        return scorebug;
+	    }
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 3;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Golden Raid$VS_Score$Time*FUNCTION*TIMER SET PAUSE INVOKE;");
+	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tGoldenTimer TIMER_OFFSET " + "30" + ";");
+	   return scorebug;
+	}
 	
 	public ScoreBug populateScoreLine(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
 	        Match match, String selectedBroadcaster) throws IOException {
@@ -330,31 +348,40 @@ public class KABADDI extends Scene {
 	    if (match.getClock() != null && match.getClock().getMatchHalves() != null) {
 	        String matchHalf = match.getClock().getMatchHalves();
 	        String subHeader;
+	        int active_value = 1;
 	        
 	        switch (matchHalf) {
 		        case "first":
 	                subHeader = "1st HALF";
+	                active_value = 1;
 	                break;
 	            case "second":
 	                subHeader = "2nd HALF";
+	                active_value = 1;
 	                break;
 	            case "extra1":
-	                subHeader = "ET 1";
+	                subHeader = "5-5 RAIDS";
+	                active_value = 0;
 	                break;
 	            case "extra2":
-	                subHeader = "ET 2";
+	                subHeader = "GOLDEN RAID";
+	                active_value = 0;
 	                break;
 	            case "half":
 	                subHeader = "HALF TIME";
+	                active_value = 1;
 	                break;
 	            case "full":
 	                subHeader = "FULL TIME";
+	                active_value = 1;
 	                break;
 	            default:
 	                subHeader = "";
+	                active_value = 0;
 	                break;
 	        }
 
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*CONTAINER SET ACTIVE " + active_value + ";");
 	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + subHeader + ";");
 	    }
 	}
@@ -441,10 +468,10 @@ public class KABADDI extends Scene {
 	                subHeader = "2nd HALF";
 	                break;
 	            case "extra1":
-	                subHeader = "ET 1";
+	                subHeader = "5-5 RAIDS";
 	                break;
 	            case "extra2":
-	                subHeader = "ET 2";
+	                subHeader = "GOLDEN RAID";
 	                break;
 	            case "half":
 	                subHeader = "HALF TIME";

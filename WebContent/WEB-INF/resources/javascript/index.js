@@ -95,6 +95,9 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 		switch (dataToProcess) {
 		case '-':
 			processKabaddiProcedures('RESET-ALL-ANIMATION');
+			break;
+		case 65:
+			processKabaddiProcedures('SWAP_DATA');
 			break;	
 		case 32:
 			processKabaddiProcedures('CLEAR-ALL');
@@ -117,7 +120,7 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			processKabaddiProcedures('POPULATE-TOURNAMENT_LOGO');
 			break;
 		case 115:
-			processKabaddiProcedures('POPULATE-MATCH_ID');
+			processKabaddiProcedures('POPULATE-GOLDEN_RAID');
 			break;
 		case 116:
 			$("#select_event_div").hide();
@@ -197,6 +200,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
         success : function(data) {
 			match_data = data;
         	switch(whatToProcess) {
+			case 'SWAP_DATA':
+				alert('values are swaped');
+				break;
 			case 'READ-MATCH-AND-POPULATE':
 				if(data){
 					/*if($('#matchFileTimeStamp').val() != data.matchFileTimeStamp) {
@@ -226,7 +232,7 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 				//setInterval(displayMatchTime, 500);
 				break;
 				
-        	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO':
+        	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
         		if(confirm('Animate In?') == true){
 					switch(whatToProcess){
 					case 'POPULATE-SCOREBUG':
@@ -238,6 +244,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 					case 'POPULATE-TOURNAMENT_LOGO':
 						processKabaddiProcedures('ANIMATE-IN-TOURNAMENT_LOGO');		
 						break;	
+					case 'POPULATE-GOLDEN_RAID':
+						processKabaddiProcedures('ANIMATE-IN-GOLDEN_RAID');		
+						break;
 					}
 				}
 				break;
