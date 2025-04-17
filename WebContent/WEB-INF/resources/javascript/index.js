@@ -159,7 +159,7 @@ function processUserSelection(whichInput)
 	case 'matchFileName':
 		if(document.getElementById('matchFileName').value) {
 			document.getElementById('matchFileName').value = 
-				document.getElementById('matchFileName').value.replace('.xml','') + '.xml';
+				document.getElementById('matchFileName').value.replace('.json','') + '.json';
 		}
 		break;
 	case 'load_match_btn':

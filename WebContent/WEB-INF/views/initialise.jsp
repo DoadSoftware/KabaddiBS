@@ -31,6 +31,7 @@
 			      <select id="selectedBroadcaster" name="selectedBroadcaster" class="browser-default custom-select custom-select-sm" 
 			      		onchange="processUserSelection(this)">
 			          <option value="KABADDI">KABADDI</option>
+			           <option value="KABADDI_GIPKL">KABADDI GIPKL</option>
 			      </select>
 			    </div>
 			  </div>
