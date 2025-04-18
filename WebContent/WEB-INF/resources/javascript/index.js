@@ -32,6 +32,13 @@ function initialiseForm(whatToProcess, dataToProcess)
 		}
 		
 		break;
+	case 'UPDATE-CONFIG':
+		document.getElementById('configuration_file_name').value = $('#select_configuration_file option:selected').val();
+		document.getElementById('selectedBroadcaster').value = dataToProcess.broadcaster;
+		document.getElementById('vizIPAddress').value = dataToProcess.ipAddress;
+		document.getElementById('vizPortNumber').value = dataToProcess.portNumber;
+		
+		break;
 	}
 }
 function uploadFormDataToSessionObjects(whatToProcess)
@@ -133,7 +140,37 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			break;
 		case 118:
 			processKabaddiProcedures('POPULATE-FF_SCORELINE');
+			break;	
+		case 77:
+			processKabaddiProcedures('POPULATE-FF_MATCH_ID');
+			break;
+		case 82:
+			processKabaddiProcedures('POPULATE-FF_TOURNAMENT ROULES');
 			break;		
+		case 83:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			processKabaddiProcedures('MATCH-PROMO_GRAPHICS-OPTIONS');
+			break;
+		case 27:
+			$('#select_graphic_options_div').empty();
+			document.getElementById('select_graphic_options_div').style.display = 'none';
+			$("#select_event_div").show();
+			$("#match_configuration").show();
+			$("#kabaddi_div").show();
+		break;
+		case 88:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			processKabaddiProcedures('EXCEL_FF_GRAPHICS_OPTION');
+
+			break;
+		case "RE_CONNECT":
+			processKabaddiProcedures('RE_CONNECT');
+			break;
+		
 		}
 		
 		break;
@@ -150,6 +187,9 @@ function processUserSelection(whichInput)
 			return false;
 		}*/
 	  	document.initialise_form.submit();
+		break;
+	case 'select_configuration_file':
+		processKabaddiProcedures('GET-CONFIG-DATA');
 		break;
 	case 'cancel_match_setup_btn':
 		document.setup_form.method = 'post';
@@ -173,6 +213,12 @@ function processUserSelection(whichInput)
 		$("#match_configuration").show();
 		$("#kabaddi_div").show();
 		break;
+	case 'populate_match_promo_btn':
+		processKabaddiProcedures('POPULATE-FF_MATCH_PROMO');
+		break;
+	case 'populate_ff_Excel_btn':
+		processKabaddiProcedures('POPULATE-FF_GRAPHICS');
+		break;
 	}
 }
 function processKabaddiProcedures(whatToProcess, whichInput)
@@ -186,10 +232,28 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 		}
 		value_to_process = $('#matchFileTimeStamp').val();
 		break;
+	case 'GET-CONFIG-DATA':
+		value_to_process = $('#select_configuration_file option:selected').val();
+		break;
+	
 	case 'LOAD_MATCH':
 		value_to_process = whichInput.val();
 		//alert(value_to_process);
 		break;	
+	case 'POPULATE-FF_MATCH_ID':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//MatchID.sum';
+		break;
+	case 'POPULATE-FF_TOURNAMENT ROULES':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//TournamentRules.sum';
+		break;
+	case 'POPULATE-FF_MATCH_PROMO':
+			value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//MatchID.sum'+","+
+				$('#selectMatchPromo option:selected').val();
+		break;
+	case 'POPULATE-FF_GRAPHICS':
+		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//FF_Row_Col.sum'+","+
+				$('#selectMatchPromo option:selected').val();
+		break;
 	}
 
 	$.ajax({    
@@ -202,6 +266,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
         	switch(whatToProcess) {
 			case 'SWAP_DATA':
 				alert('values are swaped');
+				break;
+			case 'GET-CONFIG-DATA':
+				initialiseForm('UPDATE-CONFIG',data);
 				break;
 			case 'READ-MATCH-AND-POPULATE':
 				if(data){
@@ -231,8 +298,14 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 				document.getElementById('select_event_div').style.display = '';
 				//setInterval(displayMatchTime, 500);
 				break;
-				
+			case 'MATCH-PROMO_GRAPHICS-OPTIONS':
+				addItemsToList('MATCH-PROMO-OPTIONS', data);
+				break;	
+			case 'EXCEL_FF_GRAPHICS_OPTION':
+				addItemsToList('EXCEL_FF_GRAPHICS-OPTIONS', data);
+				break;	
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
+        	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
         		if(confirm('Animate In?') == true){
 					switch(whatToProcess){
 					case 'POPULATE-SCOREBUG':
@@ -246,6 +319,18 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						break;	
 					case 'POPULATE-GOLDEN_RAID':
 						processKabaddiProcedures('ANIMATE-IN-GOLDEN_RAID');		
+						break;
+					case 'POPULATE-FF_MATCH_ID':
+						processKabaddiProcedures('ANIMATE-IN-FF_MATCH_ID');		
+						break;
+					case 'POPULATE-FF_TOURNAMENT ROULES':
+						processKabaddiProcedures('ANIMATE-IN-FF_TOURNAMENT ROULES');	
+						break;
+					case 'POPULATE-FF_MATCH_PROMO':
+						processKabaddiProcedures('ANIMATE-IN-FF_MATCH_PROMO');	
+						break;
+					case "POPULATE-FF_GRAPHICS":
+						processKabaddiProcedures('ANIMATE-IN-FF_FF_GRAPHICS');	
 						break;
 					}
 				}
@@ -416,6 +501,125 @@ function addItemsToList(whatToProcess, dataToProcess)
 		}
 	    
 		break;
+	case "MATCH-PROMO-OPTIONS":
+	    $('#select_graphic_options_div').empty();
+	
+	    header_text = document.createElement('h6');
+	    header_text.innerHTML = 'Select Graphic Options';
+	    document.getElementById('select_graphic_options_div').appendChild(header_text);
+	
+	    table = document.createElement('table');
+	    table.setAttribute('class', 'table table-bordered');
+	
+	    tbody = document.createElement('tbody');
+	    table.appendChild(tbody);
+	    document.getElementById('select_graphic_options_div').appendChild(table);
+	
+	    row = tbody.insertRow();
+	    cellCount = 0;
+	
+	    // Dropdown cell
+	    select = document.createElement('select');
+	    select.id = 'selectMatchPromo';
+	    select.name = select.id;
+	
+	    dataToProcess.forEach(function(oop) {
+	        option = document.createElement('option');
+	        option.value = oop.matchnumber;
+	        option.text = `${oop.matchnumber} - ${oop.home_Team.teamName1} Vs ${oop.away_Team.teamName1}`;
+	        select.appendChild(option);
+	    });
+	
+	    row.insertCell(cellCount++).appendChild(select);
+	
+	    // Buttons cell
+	    let buttonsDiv = document.createElement('div');
+	
+	    let populateBtn = document.createElement('input');
+	    populateBtn.type = 'button';
+	    populateBtn.name = 'populate_match_promo_btn';
+	    populateBtn.value = 'Populate Match Promo';
+	    populateBtn.id = populateBtn.name;
+	    populateBtn.setAttribute('onclick', "processUserSelection(this)");
+	    buttonsDiv.appendChild(populateBtn);
+	
+	    let cancelBtn = document.createElement('input');
+	    cancelBtn.type = 'button';
+	    cancelBtn.name = 'cancel_graphics_btn';
+	    cancelBtn.id = cancelBtn.name;
+	    cancelBtn.value = 'Cancel';
+	    cancelBtn.setAttribute('onclick', "processUserSelection(this)");
+	    buttonsDiv.appendChild(cancelBtn);
+	
+	    row.insertCell(cellCount++).appendChild(buttonsDiv);
+	
+	    document.getElementById('select_graphic_options_div').style.display = '';
+	    break;
+	    
+	   case "EXCEL_FF_GRAPHICS-OPTIONS":
+	   
+	    $('#select_graphic_options_div').empty();
+	
+	    header_text = document.createElement('h6');
+	    header_text.innerHTML = 'Select Graphic Options';
+	    document.getElementById('select_graphic_options_div').appendChild(header_text);
+	
+	    table = document.createElement('table');
+	    table.setAttribute('class', 'table table-bordered');
+	
+	    tbody = document.createElement('tbody');
+	    table.appendChild(tbody);
+	    document.getElementById('select_graphic_options_div').appendChild(table);
+	
+	    row = tbody.insertRow();
+	    cellCount = 0;
+	
+	    // Dropdown cell
+	    select = document.createElement('select');
+	    select.id = 'selectMatchPromo';
+	    select.name = select.id;
+	
+	    for (let i = 0; i < dataToProcess.length; i++) {
+			option = document.createElement('option');
+			option.value = dataToProcess[i];
+			option.text = dataToProcess[i];
+			select.appendChild(option);
+		}
+		row.insertCell(cellCount).appendChild(select);
+		option.setAttribute('onclick', "processUserSelection(this)");
+		cellCount++;
+	    row.insertCell(cellCount++).appendChild(select);
+	
+	    // Buttons cell
+	    div = document.createElement('div');
+	
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'populate_ff_Excel_btn';
+	    option.value = 'Populate EXCEL';
+	    option.id = option.name;
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    option= document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'cancel_graphics_btn';
+	    option.id = option.name;
+	    option.value = 'Cancel';
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    row.insertCell(cellCount++).appendChild(div);
+	
+	    document.getElementById('select_graphic_options_div').style.display = '';
+	     setTimeout(function () {
+	        $('#selectMatchPromo').select2({
+	            placeholder: 'Select an option',
+	            allowClear: true
+	        });
+	    }, 0);
+	    break;
+
 	}
 }
 function removeSelectDuplicates(select_id)

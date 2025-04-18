@@ -12,16 +12,26 @@
   <script type="text/javascript" src="<c:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"/>"></script>
   <script type="text/javascript" src="<c:url value="/resources/javascript/index.js"/>"></script>
   <link rel="stylesheet" href="<c:url value="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>"/>
+  <!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
   <script type="text/javascript">
 	$(document).on("keydown", function(e){
-		if (e.which >= 112 && e.which <= 123) { // Suppress default behaviour of F1 to F12
-			e.preventDefault();
+		if (e.which >= 112 && e.which <= 123) {
+		    e.preventDefault();
+		} else if (e.altKey && e.key === '2') {
+		    e.preventDefault();
+		    processUserSelectionData('LOGGER_FORM_KEYPRESS', 'RE_CONNECT');
 		}
+
 		processUserSelectionData('LOGGER_FORM_KEYPRESS',e.which);
 	});
 	setInterval(() => {
 		processKabaddiProcedures('READ-MATCH-AND-POPULATE');		
-		}, 1000);
+		}, 2500);
   </script>  
 </head>
 <!-- <body onload="afterPageLoad('MATCH');"> -->

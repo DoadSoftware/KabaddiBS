@@ -30,7 +30,7 @@ import com.kabaddi.containers.Scene;
 import com.kabaddi.containers.ScoreBug;
 import com.kabaddi.controller.IndexController;
 
-public class KABADDI_GIPKL extends Scene {
+public class KABADDI_GIPKL_AR extends Scene {
 
 	public String session_selected_broadcaster = "KABADDI_GIPKL";
 
@@ -42,7 +42,7 @@ public class KABADDI_GIPKL extends Scene {
 	public int Whichside = 2;
 	public String logo_path = "D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Logos\\";
 	
-	public KABADDI_GIPKL() {
+	public KABADDI_GIPKL_AR() {
 		super();
 	}
 
@@ -65,12 +65,17 @@ public class KABADDI_GIPKL extends Scene {
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
 		switch (whatToProcess.toUpperCase()) {
 		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
-			scenes.get(0).setScene_path("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Scenes\\BS.sum");
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
-			scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
-			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
+			if(IndexController .session_Configurations.getIpAddress().equalsIgnoreCase("localhost")) {
+				scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
+				scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
+			}else {
+				scenes.get(0).setScene_path("\\\\" + IndexController.session_Configurations.getIpAddress() + valueToProcess.split(",")[0].replace("D:", "d:"));
+				scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
+			}
+			
 			break;
 		}
 		switch (whatToProcess.toUpperCase()) {
@@ -122,8 +127,6 @@ public class KABADDI_GIPKL extends Scene {
 
 			case "ANIMATE-IN-SCOREBUG":
 				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				TimeUnit.SECONDS.sleep(2);
-				processAnimation(print_writer, "In", "COUNTINUE", session_selected_broadcaster,1);
 				is_infobar = true;
 				which_graphics_onscreen = "SCOREBUG";
 				break;
@@ -486,7 +489,6 @@ public class KABADDI_GIPKL extends Scene {
 
 	    if (!isThisUpdating) {
 	    	printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 2;");
-	    	printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader "+ match.getMatchIdent() + ";");
 		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
 		            match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
 		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 

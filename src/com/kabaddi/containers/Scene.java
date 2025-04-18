@@ -48,7 +48,7 @@ public class Scene {
 	public void scene_load(PrintWriter print_writer, String broadcaster) throws InterruptedException
 	{
 		switch (broadcaster.toUpperCase()) {
-		case KabaddiUtil.KABADDI: case "KABADDI_GIPKL":
+		case KabaddiUtil.KABADDI: case "KABADDI_GIPKL":case "KABADDI_GIPKL_AR":case "KABADDI_GIPKL_BS":
 			switch(this.which_layer.toUpperCase()) {
 			case KabaddiUtil.ONE:
 				//System.out.println("Secne : " + this.scene_path);
