@@ -163,6 +163,8 @@ public class IndexController
 			this_GIPKL.scorebug = new ScoreBug();
 			break;
 		case "KABADDI_GIPKL":
+			session_selected_scenes.add(new Scene("",KabaddiUtil.ONE)); 
+			session_selected_scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			this_GIPKL = new KABADDI_GIPKL();
 			this_GIPKL.scorebug = new ScoreBug();
 			break;
