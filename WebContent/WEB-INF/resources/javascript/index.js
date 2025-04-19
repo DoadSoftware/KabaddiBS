@@ -146,6 +146,9 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			break;
 		case 82:
 			processKabaddiProcedures('POPULATE-FF_TOURNAMENT ROULES');
+			break;	
+		case 119:
+			processKabaddiProcedures('POPULATE-MANUAL_SCOREBUG');
 			break;		
 		case 83:
 			$("#select_event_div").hide();
@@ -170,7 +173,13 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 		case "RE_CONNECT":
 			processKabaddiProcedures('RE_CONNECT');
 			break;
-		
+		case 78:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			processKabaddiProcedures('NAMESUPER_GRAPHICS-OPTIONS');
+
+			break;
 		}
 		
 		break;
@@ -219,6 +228,10 @@ function processUserSelection(whichInput)
 	case 'populate_ff_Excel_btn':
 		processKabaddiProcedures('POPULATE-FF_GRAPHICS');
 		break;
+	case 'populate_namesuper_btn':
+		processKabaddiProcedures('POPULATE-L3-NAMESUPER');
+		break;
+	
 	}
 }
 function processKabaddiProcedures(whatToProcess, whichInput)
@@ -252,6 +265,10 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 		break;
 	case 'POPULATE-FF_GRAPHICS':
 		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//FF_Row_Col.sum'+","+
+				$('#selectMatchPromo option:selected').val();
+		break;
+	case 'POPULATE-L3-NAMESUPER':
+	 	value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_SingleSlug_'+ $('#selectSingleSlug option:selected').val() + '.sum'+","+
 				$('#selectMatchPromo option:selected').val();
 		break;
 	}
@@ -301,10 +318,14 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 			case 'MATCH-PROMO_GRAPHICS-OPTIONS':
 				addItemsToList('MATCH-PROMO-OPTIONS', data);
 				break;	
-			case 'EXCEL_FF_GRAPHICS_OPTION':
-				addItemsToList('EXCEL_FF_GRAPHICS-OPTIONS', data);
+			case 'NAMESUPER_GRAPHICS-OPTIONS':
+				addItemsToList('NAMESUPER_GRAPHICS-OPTIONS_TABLE', data);
+				break;	
+			case 'MATCH-PROMO_GRAPHICS-OPTIONS':
+				addItemsToList('MATCH-PROMO-OPTIONS', data);
 				break;	
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
+        	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":
         	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
         		if(confirm('Animate In?') == true){
 					switch(whatToProcess){
@@ -331,6 +352,12 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						break;
 					case "POPULATE-FF_GRAPHICS":
 						processKabaddiProcedures('ANIMATE-IN-FF_FF_GRAPHICS');	
+						break;
+					case 'POPULATE-L3-NAMESUPER':
+						processKabaddiProcedures('ANIMATE-IN-L3-NAMESUPER');	
+						break;
+					case "POPULATE-MANUAL_SCOREBUG":
+						processKabaddiProcedures('ANIMATE-IN-MANUAL_SCOREBUG');	
 						break;
 					}
 				}
@@ -619,7 +646,72 @@ function addItemsToList(whatToProcess, dataToProcess)
 	        });
 	    }, 0);
 	    break;
-
+ case "NAMESUPER_GRAPHICS-OPTIONS_TABLE":
+	   $('#select_graphic_options_div').empty();
+	
+	    header_text = document.createElement('h6');
+	    header_text.innerHTML = 'Select Graphic Options';
+	    document.getElementById('select_graphic_options_div').appendChild(header_text);
+	
+	    table = document.createElement('table');
+	    table.setAttribute('class', 'table table-bordered');
+	
+	    tbody = document.createElement('tbody');
+	    table.appendChild(tbody);
+	    document.getElementById('select_graphic_options_div').appendChild(table);
+	
+	    row = tbody.insertRow();
+	    cellCount = 0;
+	
+	    // Dropdown cell
+	    select = document.createElement('select');
+	    select.id = 'selectMatchPromo';
+	    select.name = select.id;
+	
+	    dataToProcess.forEach(function(ns) {
+			option = document.createElement('option');
+			option.value = ns.namesuperId;
+			option.text = ns.firstname + " " + ns.surname;
+			select.appendChild(option);
+		});
+	
+	    row.insertCell(cellCount++).appendChild(select);
+	    
+	 	select = document.createElement('select');
+	    select.id = 'selectSingleSlug';
+	    select.name = select.id;
+	
+	    ["Up","Bottom"].forEach(function(ns) {
+			option = document.createElement('option');
+			option.value = ns;
+			option.text = ns;
+			select.appendChild(option);
+		});
+	
+	    row.insertCell(cellCount++).appendChild(select);
+	    // Buttons cell
+	    div = document.createElement('div');
+	
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'populate_namesuper_btn';
+	    option.value = 'Populate';
+	    option.id = option.name;
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'cancel_graphics_btn';
+	    option.id = option.name;
+	    option.value = 'Cancel';
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    row.insertCell(cellCount++).appendChild(div);
+	
+	    document.getElementById('select_graphic_options_div').style.display = '';
+	    break;
 	}
 }
 function removeSelectDuplicates(select_id)

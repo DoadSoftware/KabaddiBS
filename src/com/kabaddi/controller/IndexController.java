@@ -210,7 +210,17 @@ public class IndexController
 			return JSONObject.fromObject(session_Configurations).toString();
 			
 		case "SWAP_DATA":
-			if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI")) {
+			if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL_BS")||
+					session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL")) {
+				if(this_GIPKL.scorebug.isValue_is_swap() == false) {
+					SwapMatch = KabaddiFunctions.SwapMatch(session_match);
+					this_GIPKL.scorebug.setValue_is_swap(true);
+				}else if(this_Kabaddi.scorebug.isValue_is_swap() == true) {
+					SwapMatch = session_match;
+					this_GIPKL.scorebug.setValue_is_swap(false);
+				}
+
+			}else if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI")) {
 				if(this_Kabaddi.scorebug.isValue_is_swap() == false) {
 					SwapMatch = KabaddiFunctions.SwapMatch(session_match);
 					this_Kabaddi.scorebug.setValue_is_swap(true);
@@ -226,7 +236,9 @@ public class IndexController
 			return JSONArray.fromObject(KabaddiFunctions.processAllFixtures(kabaddiService)).toString();
 		case "EXCEL_FF_GRAPHICS_OPTION":
 				return JSONArray.fromObject(KabaddiFunctions.ReadExcel(KabaddiUtil.FF_EXCEL).keySet()).toString();	
-		
+		case "NAMESUPER_GRAPHICS-OPTIONS":
+			return JSONArray.fromObject(kabaddiService.getNameSupers()).toString();
+			
 		case "RE_CONNECT":
 			session_socket = new Socket(session_Configurations.getIpAddress(), Integer.valueOf(session_Configurations.getPortNumber()));
 			print_writer = new PrintWriter(session_socket.getOutputStream(), true);
@@ -288,7 +300,9 @@ public class IndexController
 			} else {
 				session_match.setClock(new Clock());
 			}
-			if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL")) {
+			
+			if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL_BS")||
+					session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL")) {
 				this_GIPKL.scorebug.setValue_is_swap(false);
 
 			}else if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI")) {
@@ -362,14 +376,24 @@ public class IndexController
 						}else if(this_Kabaddi.scorebug.isValue_is_swap() == true) {
 							SwapMatch = KabaddiFunctions.SwapMatch(session_match);
 						}
+					}else if(session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL_BS")||
+							session_selected_broadcaster.toUpperCase().equalsIgnoreCase("KABADDI_GIPKL")) {
+						if(this_GIPKL.scorebug.isValue_is_swap() == false) {
+							SwapMatch = session_match;
+						}else if(this_GIPKL.scorebug.isValue_is_swap() == true) {
+							SwapMatch = KabaddiFunctions.SwapMatch(session_match);
+						}
 					}
 					if(session_selected_broadcaster != null) {
 						switch (session_selected_broadcaster) {
-						case KabaddiUtil.KABADDI:
-							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
+						case "KABADDI_GIPKL_BS":
+							this_GIPKL.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
 							break;
 						case "KABADDI_GIPKL":
-							this_GIPKL.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
+							this_GIPKL.updateScoreBug_Manual(session_selected_scenes, session_match, SwapMatch, print_writer);
+							break;
+						case KabaddiUtil.KABADDI:
+							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
 							break;
 						}
 					}
