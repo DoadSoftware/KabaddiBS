@@ -65,6 +65,7 @@ public class IndexController
 	public static  Match SwapMatch = new Match();
 	public static Api_pre_match api_pre_match = new Api_pre_match();
 	public static int counter;
+	public static long timestamp =0;
 	
 	List<Scene> session_selected_scenes = new ArrayList<Scene>();
 	public static String session_selected_broadcaster;
@@ -144,7 +145,7 @@ public class IndexController
 		
 		session_Configurations.setBroadcaster(selectedBroadcaster);
 		session_Configurations.setIpAddress(vizIPAddresss);
-		
+		timestamp = new File("C:\\Sports\\Kabaddi\\MANUAL_SCOREBUG.xlsx").lastModified();
 		if(!vizPortNumber.trim().isEmpty()) {
 			session_Configurations.setPortNumber(Integer.valueOf(vizPortNumber));
 			session_socket = new Socket(vizIPAddresss, Integer.valueOf(vizPortNumber));
@@ -236,7 +237,9 @@ public class IndexController
 		case "MATCH-PROMO_GRAPHICS-OPTIONS": 
 			return JSONArray.fromObject(KabaddiFunctions.processAllFixtures(kabaddiService)).toString();
 		case "EXCEL_FF_GRAPHICS_OPTION":
-				return JSONArray.fromObject(KabaddiFunctions.ReadExcel(KabaddiUtil.FF_EXCEL).keySet()).toString();	
+				return JSONArray.fromObject(KabaddiFunctions.ReadExcel(KabaddiUtil.FF_EXCEL).keySet()).toString();
+		case "EXCEL_LT_GRAPHICS_OPTION":
+			return JSONArray.fromObject(KabaddiFunctions.ReadExcel("C:\\Sports\\Kabaddi\\LT_EVERSET_EXCEL.xlsx").keySet()).toString();
 		case "NAMESUPER_GRAPHICS-OPTIONS":
 			return JSONArray.fromObject(kabaddiService.getNameSupers()).toString();
 			
@@ -391,7 +394,10 @@ public class IndexController
 							this_GIPKL.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
 							break;
 						case "KABADDI_GIPKL":
-							this_GIPKL.updateScoreBug_Manual(session_selected_scenes, session_match, SwapMatch, print_writer);
+							if(timestamp != new File("C:\\Sports\\Kabaddi\\MANUAL_SCOREBUG.xlsx").lastModified()) {
+								this_GIPKL.updateScoreBug_Manual(session_selected_scenes, session_match, SwapMatch, print_writer);
+								timestamp = new File("C:\\Sports\\Kabaddi\\MANUAL_SCOREBUG.xlsx").lastModified();
+							}
 							break;
 						case KabaddiUtil.KABADDI:
 							this_Kabaddi.updateScoreBug(session_selected_scenes, session_match, SwapMatch, print_writer);
@@ -427,4 +433,6 @@ public class IndexController
 			return JSONObject.fromObject(session_match).toString();
 		}
 	}
+	
+	
 }

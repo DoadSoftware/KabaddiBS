@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import com.kabaddi.service.KabaddiService;
 import com.kabaddi.util.KabaddiFunctions;
 import com.kabaddi.util.KabaddiUtil;
 
+import javassist.expr.NewArray;
 import net.sf.json.JSONArray;
 
 import com.healthmarketscience.jackcess.Index;
@@ -64,20 +66,21 @@ public class KABADDI_GIPKL extends Scene {
 		return scorebug;
 	}
 	public Object ProcessGraphicOption(String whatToProcess, Match match, Match swapMatch, KabaddiService kabaddiService,PrintWriter print_writer, List<Scene> scenes, String valueToProcess)
-			throws InterruptedException, NumberFormatException, MalformedURLException, IOException, JAXBException {
+			throws Exception {
 
 		switch (whatToProcess.toUpperCase()) {
 		//ScoreBug
 		
 		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":	case "POPULATE-L3-NAMESUPER":
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":case "POPULATE-MANUAL_SCOREBUG":
+		case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
 		switch (whatToProcess.toUpperCase()) {
 		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
 			scenes.get(0).setScene_path("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Scenes\\BS.sum");
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
-		case "POPULATE-L3-NAMESUPER":
+		case "POPULATE-L3-NAMESUPER":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
 			scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
@@ -112,6 +115,9 @@ public class KABADDI_GIPKL extends Scene {
 		case "POPULATE-FF_GRAPHICS":
 			populateFF_EXCEL(whatToProcess,valueToProcess.substring(valueToProcess.lastIndexOf(",")+1),print_writer,kabaddiService.getAllPlayer());
 			break;
+		case "POPULATE-L3-GRAPHICS":
+			populateLT_EXCEL(whatToProcess,valueToProcess.substring(valueToProcess.lastIndexOf(",")+1),print_writer,kabaddiService.getAllPlayer());
+			break;
 		case "POPULATE-L3-NAMESUPER":
 			for(NameSuper ns : kabaddiService.getNameSupers()) {
 			  if(ns.getNamesuperId() == Integer.valueOf(valueToProcess.split(",")[1])) {
@@ -121,6 +127,10 @@ public class KABADDI_GIPKL extends Scene {
 			break;
 		case "POPULATE-MANUAL_SCOREBUG":
 			populateScoreBug_Manual(false, scorebug, print_writer, swapMatch, valueToProcess);
+			break;
+		case "POPULATE-L3-FIXTURES":
+			populateL3Fixtures(print_writer, KabaddiFunctions.processAllFixtures(kabaddiService),match,
+					valueToProcess.substring(valueToProcess.lastIndexOf(",")+1));
 			break;
 		case "POPULATE-FF_TOURNAMENT ROULES":
 			  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
@@ -141,7 +151,7 @@ public class KABADDI_GIPKL extends Scene {
 		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":
 		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO": case "ANIMATE-IN-GOLDEN_RAID":
 		case "ANIMATE-IN-FF_MATCH_ID":case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":case "ANIMATE-IN-FF_FF_GRAPHICS":
-		case "ANIMATE-IN-L3-NAMESUPER":case "ANIMATE-IN-MANUAL_SCOREBUG":
+		case "ANIMATE-IN-L3-NAMESUPER":case "ANIMATE-IN-MANUAL_SCOREBUG":case "ANIMATE-IN-LT_GRAPHICS":case "ANIMATE-IN-L3-FIXTURES":
 			switch (whatToProcess.toUpperCase()) {
 
 			case "ANIMATE-IN-SCOREBUG":
@@ -188,7 +198,7 @@ public class KABADDI_GIPKL extends Scene {
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tHomeRaiderClock TIMER_OFFSET 30;");
 				break;
 			case "ANIMATE-IN-FF_MATCH_ID": case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":
-			case "ANIMATE-IN-FF_FF_GRAPHICS":case "ANIMATE-IN-L3-NAMESUPER":
+			case "ANIMATE-IN-FF_FF_GRAPHICS":case "ANIMATE-IN-L3-NAMESUPER":case "ANIMATE-IN-LT_GRAPHICS":case "ANIMATE-IN-L3-FIXTURES":
 				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
 				which_graphics_onscreen = "MATCH_ID";
 				break;
@@ -203,7 +213,6 @@ public class KABADDI_GIPKL extends Scene {
 	}
 
 	
-
 	public void processAnimation(PrintWriter print_writer, String animationName,String animationCommand, String which_broadcaster,int which_layer) throws IOException
 	{
 		switch(which_broadcaster.toUpperCase()) {
@@ -219,7 +228,52 @@ public class KABADDI_GIPKL extends Scene {
 			break;
 		}
 	}
-	
+	private void populateL3Fixtures(PrintWriter printWriter, List<Fixture> AllFixtures, Match match, String Category) throws Exception {
+		
+		List<Fixture> fix = new ArrayList<Fixture>();
+		
+		printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tFirstName FIXTURES;");
+        
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName " + match.getTournament() + ";");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubInfo FIXTURES;");
+        //HEADER
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead01 MATCH" + ";");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead02 TIME" + ";");
+        
+        int count =0;
+         
+        Calendar cal = Calendar.getInstance();
+        for(Fixture fx : AllFixtures) {
+        	if(fx.getDate().equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy").format(cal.getTime()))){
+        		if(Category.toUpperCase().equalsIgnoreCase(fx.getCategory().toUpperCase())) {
+        			fix.add(fx);	
+        		}
+        	}
+        }
+     // Body of table
+        for(int i=0; i <fix.size(); i++) {
+        	 printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + (i+1) + "A " + 
+        			 fix.get(i).getHome_Team().getTeamName1() +" vs "+fix.get(i).getAway_Team().getTeamName1()+ ";");
+             printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + (i+1) + "B " 
+        			 + " AT "+ (fix.get(i).getTime()==null ?" ":fix.get(i).getTime())  + ";");
+        }
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectRows 2 ;");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectColumm "+(fix.size()-1)+" ;");
+        
+	  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 160.0;");
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+	  printWriter.
+	  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+	  printWriter.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+	  TimeUnit.SECONDS.sleep(1);
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+	  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
+	}
+
 	public void populateMatchId(PrintWriter print_writer, Match match,String session_selected_broadcaster) throws InterruptedException {
 		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHeader "
 				+ match.getMatchIdent().toUpperCase()+ ";");
@@ -232,7 +286,8 @@ public class KABADDI_GIPKL extends Scene {
 		
 		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " + "LIVE FROM "
 				+ match.getVenueName().toUpperCase() + ";");
-		
+		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tBottomInfo ;");
+
 		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
 		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
 		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
@@ -247,6 +302,53 @@ public class KABADDI_GIPKL extends Scene {
 		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
 		 
 
+	}
+	
+	
+	private void populateLT_EXCEL(String whatToProcess, String ValueToProcess, PrintWriter printWriter,
+			List<Player> allPlayer) throws InterruptedException {
+		 Map<String, Object> rowData = KabaddiFunctions.ReadExcel("C:\\Sports\\Kabaddi\\LT_EVERSET_EXCEL.xlsx").get(ValueToProcess);
+
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tFirstName " + 
+	    	        (rowData.get("HEADER") != null ? rowData.get("HEADER").toString().trim() : "") + ";");
+	        
+            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName " +  (rowData.get("SUB HEADER") != null ? rowData.get("SUB HEADER").toString().trim() : "") + ";");
+	        
+			int cols = rowData.get("COLS") != null ? (rowData.get("COLS") instanceof Number ? ((Number) rowData.get("COLS")).intValue() : Integer.parseInt(rowData.get("COLS").toString().trim())) : 0;
+	        int rows = rowData.get("ROWS") != null ? (rowData.get("ROWS") instanceof Number ? ((Number) rowData.get("ROWS")).intValue() : Integer.parseInt(rowData.get("ROWS").toString().trim())) : 0;
+	        
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectRows " + Math.abs(cols) + " ;");
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectColumm " + (rows-1) + " ;");
+
+	        // Header of table
+	        for (int j = 1; j <= cols; j++) {
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead0" + j + " " + 
+	            		(rowData.get("H" + j) != null ? rowData.get("H" + j).toString().trim() : "") + ";");
+	        }
+
+	        // Body of table
+	        for (int i = 1; i <= rows; i++) {
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "A " + (rowData.get("R" + i + ".1") != null ? rowData.get("R" + i + ".1").toString().trim() : "") + ";");
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "B " + (rowData.get("R" + i + ".2") != null ? rowData.get("R" + i + ".2").toString().trim() : "") + ";");
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "C " + (rowData.get("R" + i + ".3") != null ? rowData.get("R" + i + ".3").toString().trim() : "") + ";");
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "D " + (rowData.get("R" + i + ".4") != null ? rowData.get("R" + i + ".4").toString().trim() : "") + ";");
+	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "E " + (rowData.get("R" + i + ".5") != null ? rowData.get("R" + i + ".5").toString().trim() : "") + ";");
+
+	        }
+	        
+		  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 160.0;");
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+		  printWriter.
+		  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+		  printWriter.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+		  TimeUnit.SECONDS.sleep(1);
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+		  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
+		
 	}
 	public void populateNameSuper(PrintWriter print_writer, String viz_scene, NameSuper ns, Match match,
 			String session_selected_broadcaster) throws InterruptedException {
@@ -271,7 +373,7 @@ public class KABADDI_GIPKL extends Scene {
 				  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
 				  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
 				  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-				  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 67.0;");
+				  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 240.0;");
 				  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
 				  print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
 				  print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
@@ -387,17 +489,18 @@ public class KABADDI_GIPKL extends Scene {
 }
 	public ScoreBug populateScoreBug_Manual(boolean is_this_updating, ScoreBug scorebug, PrintWriter print_writer,
 			Match match, String selectedbroadcaster) throws IOException {
-
+			Map<String, Object> map = KabaddiFunctions.Read_Excel("C:\\Sports\\Kabaddi\\MANUAL_SCOREBUG.xlsx");
 			if(is_this_updating == false) {
 				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + " " + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tTopInfo " + match.getMatchIdent() + ";");
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tTopInfo " + map.get("HEADER") + ";");
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path + 
-						match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+						map.get("HOME TEAM LOGO") + KabaddiUtil.PNG_EXTENSION + ";");
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_AwayLogo " + logo_path + 
-						match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
+						map.get("AWAY TEAM LOGO") + KabaddiUtil.PNG_EXTENSION + ";");
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeFirstName " +map.get("HOME TEAM NAME") + ";");
+				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayFirstName " +map.get("AWAY TEAM NAME")+ ";");
 			}
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tVS_Score " + match.getHomeTeamScore() + "-" + match.getAwayTeamScore() + ";");
+			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tVS_Score " +map.get("SCORE") + ";");
 
 		
 		return scorebug;

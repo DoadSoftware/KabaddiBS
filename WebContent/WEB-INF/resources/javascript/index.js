@@ -207,6 +207,21 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			processKabaddiProcedures('NAMESUPER_GRAPHICS-OPTIONS');
 
 			break;
+		case 72:
+			processKabaddiProcedures('POPULATE-MANUAL_SCOREBUG');
+			break;
+		case 90:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			processKabaddiProcedures('EXCEL_LT_GRAPHICS_OPTION');
+			break;
+		case 67:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			addItemsToList('LT_FIXTURES',null);
+			break;
 		}
 		
 		break;
@@ -273,6 +288,12 @@ function processUserSelection(whichInput)
 	case 'populate_super2_btn':
 		processKabaddiProcedures('POPULATE-TACKLE');
 		break;
+	case 'populate_LT_Excel_btn':
+		processKabaddiProcedures('POPULATE-L3-GRAPHICS');
+		break;
+	case 'populate_LT_fixture_btn':
+		processKabaddiProcedures('POPULATE-L3-FIXTURES');
+		break;
 	}
 }
 function processKabaddiProcedures(whatToProcess, whichInput)
@@ -317,6 +338,14 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'POPULATE-FF_GRAPHICS':
 		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//FF_Row_Col.sum'+","+
 				$('#selectMatchPromo option:selected').val();
+		break;
+	case "POPULATE-L3-GRAPHICS":
+		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_Row_Col'
+		 	+ $('#selectSingleSlug option:selected').val() + '.sum'+","+ $('#selectMatchPromo option:selected').val();
+		break;
+	case "POPULATE-L3-FIXTURES":
+		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_Row_Col'
+		 	+ $('#selectSingleSlug option:selected').val() + '.sum' +"," +$('#selectCategory option:selected').val() ;
 		break;
 	case 'POPULATE-L3-NAMESUPER':
 	 	value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_SingleSlug_'+ $('#selectSingleSlug option:selected').val() + '.sum'+","+
@@ -397,11 +426,14 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 			case 'NAMESUPER_GRAPHICS-OPTIONS':
 				addItemsToList('NAMESUPER_GRAPHICS-OPTIONS_TABLE', data);
 				break;	
-			case 'MATCH-PROMO_GRAPHICS-OPTIONS':
-				addItemsToList('MATCH-PROMO-OPTIONS', data);
+			case 'EXCEL_FF_GRAPHICS_OPTION':
+				addItemsToList('EXCEL_FF_GRAPHICS-OPTIONS', data);
+				break;	
+			case 'EXCEL_LT_GRAPHICS_OPTION':
+				addItemsToList('EXCEL_LT_GRAPHICS-OPTIONS', data);
 				break;	
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
-        	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":
+        	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
         	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
 				
 			case 'POPULATE-MATCH_ID': case 'POPULATE-RAID':
@@ -439,6 +471,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 					case "POPULATE-MANUAL_SCOREBUG":
 						processKabaddiProcedures('ANIMATE-IN-MANUAL_SCOREBUG');	
 						break;
+					case "POPULATE-L3-FIXTURES":
+						processKabaddiProcedures('ANIMATE-IN-L3-FIXTURES');	
+						break;
 					case 'POPULATE-SECOND_BONUS':
 						processKabaddiProcedures('ANIMATE-IN-SECOND_BONUS');		
 						break;
@@ -468,6 +503,8 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						break;
 					case 'POPULATE-BONUS2':
 						processKabaddiProcedures('ANIMATE-IN-BONUS2');		
+					case "POPULATE-L3-GRAPHICS":
+						processKabaddiProcedures('ANIMATE-IN-LT_GRAPHICS');	
 						break;
 					}
 				}
@@ -802,7 +839,7 @@ function addItemsToList(whatToProcess, dataToProcess)
 	    document.getElementById('select_graphic_options_div').style.display = '';
 	    break;
 	    
-	   case "EXCEL_FF_GRAPHICS-OPTIONS":
+	   case "EXCEL_FF_GRAPHICS-OPTIONS":case 'EXCEL_LT_GRAPHICS-OPTIONS':
 	   
 	    $('#select_graphic_options_div').empty();
 	
@@ -837,16 +874,43 @@ function addItemsToList(whatToProcess, dataToProcess)
 	    row.insertCell(cellCount++).appendChild(select);
 	
 	    // Buttons cell
-	    div = document.createElement('div');
-	
-	    option = document.createElement('input');
-	    option.type = 'button';
-	    option.name = 'populate_ff_Excel_btn';
-	    option.value = 'Populate EXCEL';
-	    option.id = option.name;
-	    option.setAttribute('onclick', "processUserSelection(this)");
-	    div.appendChild(option);
-	
+	    
+	    switch(whatToProcess){
+		 case "EXCEL_FF_GRAPHICS-OPTIONS":
+			div = document.createElement('div');
+		    option = document.createElement('input');
+		    option.type = 'button';
+		 	option.name = 'populate_ff_Excel_btn';
+		 	option.value = 'Populate EXCEL';
+		    option.id = option.name;
+		    option.setAttribute('onclick', "processUserSelection(this)");
+		    div.appendChild(option);
+		  break;
+		 case 'EXCEL_LT_GRAPHICS-OPTIONS':
+		 	
+		 	select = document.createElement('select');
+		    select.id = 'selectSingleSlug';
+		    select.name = select.id;
+		
+		    ["Up","Bottom"].forEach(function(ns) {
+				option = document.createElement('option');
+				option.value =(ns === 'Up' ? "" : "_" + ns);
+				option.text = ns;
+				select.appendChild(option);
+			});
+		
+		    row.insertCell(cellCount++).appendChild(select);
+	    
+		 	div = document.createElement('div');
+		    option = document.createElement('input');
+		    option.type = 'button';
+		    option.value = 'Populate EXCEL'; 
+		 	option.name = 'populate_LT_Excel_btn';
+		 	option.id = option.name;
+		    option.setAttribute('onclick', "processUserSelection(this)");
+		    div.appendChild(option);
+		 break;
+		}
 	    option= document.createElement('input');
 	    option.type = 'button';
 	    option.name = 'cancel_graphics_btn';
@@ -865,6 +929,69 @@ function addItemsToList(whatToProcess, dataToProcess)
 	        });
 	    }, 0);
 	    break;
+ case "LT_FIXTURES":
+	  $('#select_graphic_options_div').empty();
+	
+	    header_text = document.createElement('h6');
+	    header_text.innerHTML = 'Select Graphic Options';
+	    document.getElementById('select_graphic_options_div').appendChild(header_text);
+	
+	    table = document.createElement('table');
+	    table.setAttribute('class', 'table table-bordered');
+	
+	    tbody = document.createElement('tbody');
+	    table.appendChild(tbody);
+	    document.getElementById('select_graphic_options_div').appendChild(table);
+	
+	    row = tbody.insertRow();
+	    cellCount = 0;
+	    select = document.createElement('select');
+	    select.id = 'selectSingleSlug';
+	    select.name = select.id;
+	
+	    ["Up","Bottom"].forEach(function(ns) {
+			option = document.createElement('option');
+			option.value =(ns === 'Up' ? "" : "_" + ns);
+			option.text = ns;
+			select.appendChild(option);
+		});
+	
+	    row.insertCell(cellCount++).appendChild(select);
+	    select = document.createElement('select');
+	    select.id = 'selectCategory';
+	    select.name = select.id;
+	
+	    ["Men","Women"].forEach(function(ns) {
+			option = document.createElement('option');
+			option.value =ns;
+			option.text = ns;
+			select.appendChild(option);
+		});
+	
+	    row.insertCell(cellCount++).appendChild(select);
+	    
+	 	div = document.createElement('div');
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.value = 'Populate'; 
+	 	option.name = 'populate_LT_fixture_btn';
+	 	option.id = option.name;
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	    
+	    option= document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'cancel_graphics_btn';
+	    option.id = option.name;
+	    option.value = 'Cancel';
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    row.insertCell(cellCount++).appendChild(div);
+	
+	    document.getElementById('select_graphic_options_div').style.display = '';
+	
+	break
  case "NAMESUPER_GRAPHICS-OPTIONS_TABLE":
 	   $('#select_graphic_options_div').empty();
 	
