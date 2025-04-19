@@ -136,11 +136,38 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			addItemsToList('STARTING_LINE_UP_OPTION',null);
 			break;
 		case 117:
-			processKabaddiProcedures('POPULATE-TEAMS_LOGOS');
+			processKabaddiProcedures('POPULATE-MATCH_ID');
 			break;
-		case 118:
-			processKabaddiProcedures('POPULATE-FF_SCORELINE');
+		case 119:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			addItemsToList('DO_DIE1_OPTION',null);
+			break;
+		case 120:
+			processKabaddiProcedures('POPULATE-BONUS');
+			break;
+		case 121:
+			processKabaddiProcedures('POPULATE-BONUS2');
 			break;	
+		case 122:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			addItemsToList('SUPERTACKLE1_OPTION',null);
+			break;
+		case 123:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			addItemsToList('SUPERTACKLE2_OPTION',null);
+			break;			
+		/*case 123:
+			processKabaddiProcedures('POPULATE-BONUS');
+			break;
+		case 116:
+			processKabaddiProcedures('POPULATE-SECOND_BONUS');
+			break;*/					
 		case 77:
 			processKabaddiProcedures('POPULATE-FF_MATCH_ID');
 			break;
@@ -231,7 +258,21 @@ function processUserSelection(whichInput)
 	case 'populate_namesuper_btn':
 		processKabaddiProcedures('POPULATE-L3-NAMESUPER');
 		break;
-	
+	case 'populate_chroma_btn':
+		processKabaddiProcedures('POPULATE-CHROMA');
+		break;
+	case 'populate_do_die1_btn':
+		processKabaddiProcedures('POPULATE-DO_DIE');
+		break;
+	case 'populate_do_die2_btn':
+		processKabaddiProcedures('POPULATE-SECOND_DO_DIE');
+		break;
+	case 'populate_super1_btn':
+		processKabaddiProcedures('POPULATE-SUPER');
+		break;
+	case 'populate_super2_btn':
+		processKabaddiProcedures('POPULATE-TACKLE');
+		break;
 	}
 }
 function processKabaddiProcedures(whatToProcess, whichInput)
@@ -252,7 +293,17 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'LOAD_MATCH':
 		value_to_process = whichInput.val();
 		//alert(value_to_process);
-		break;	
+		break;
+	case 'POPULATE-BONUS':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//Bonus1.sum';
+		break;
+	case 'POPULATE-BONUS2':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//Bonus2.sum';
+		break;		
+	case 'POPULATE-MATCH_ID':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//MatchID.sum';
+		break;
+		
 	case 'POPULATE-FF_MATCH_ID':
 		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//MatchID.sum';
 		break;
@@ -260,8 +311,8 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//TournamentRules.sum';
 		break;
 	case 'POPULATE-FF_MATCH_PROMO':
-			value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//MatchID.sum'+","+
-				$('#selectMatchPromo option:selected').val();
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//MatchID.sum'+","+
+			$('#selectMatchPromo option:selected').val();
 		break;
 	case 'POPULATE-FF_GRAPHICS':
 		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//FF_Row_Col.sum'+","+
@@ -270,6 +321,31 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'POPULATE-L3-NAMESUPER':
 	 	value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_SingleSlug_'+ $('#selectSingleSlug option:selected').val() + '.sum'+","+
 				$('#selectMatchPromo option:selected').val();
+		break;
+	case 'POPULATE-BONUS':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes/Bonus1.sum';
+		break;
+	case 'POPULATE-SECOND_BONUS':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes/Bonus2.sum';
+		break;
+	case 'POPULATE-CHROMA':
+		value_to_process = $('#selectChroma option:selected').val();
+		break;
+	case 'POPULATE-DO_DIE':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//DoOrDie.sum' + ',' + 
+			$('#selectTeam option:selected').val();
+		break;
+	case 'POPULATE-SECOND_DO_DIE':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//DoOrDie.sum' + ',' + 
+			$('#selectTeam option:selected').val();
+		break;
+	case 'POPULATE-SUPER':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//SuperTackle1.sum' + ',' + 
+			$('#selectTeam option:selected').val();
+		break;
+	case 'POPULATE-TACKLE':
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes//SuperTackle2.sum' + ',' + 
+			$('#selectTeam option:selected').val();
 		break;
 	}
 
@@ -327,6 +403,10 @@ function processKabaddiProcedures(whatToProcess, whichInput)
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
         	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":
         	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
+				
+			case 'POPULATE-MATCH_ID': case 'POPULATE-RAID':
+        	case 'POPULATE-DO_DIE': case 'POPULATE-SECOND_DO_DIE': case 'POPULATE-SUPER': case 'POPULATE-TACKLE':
+        	case 'POPULATE-BONUS': case 'POPULATE-SECOND_BONUS': case 'POPULATE-REVERSE_MATCH_ID': case 'POPULATE-BONUS': case 'POPULATE-BONUS2':
         		if(confirm('Animate In?') == true){
 					switch(whatToProcess){
 					case 'POPULATE-SCOREBUG':
@@ -359,6 +439,36 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 					case "POPULATE-MANUAL_SCOREBUG":
 						processKabaddiProcedures('ANIMATE-IN-MANUAL_SCOREBUG');	
 						break;
+					case 'POPULATE-SECOND_BONUS':
+						processKabaddiProcedures('ANIMATE-IN-SECOND_BONUS');		
+						break;
+					case 'POPULATE-BONUS':
+						processKabaddiProcedures('ANIMATE-IN-BONUS');		
+						break;
+					case 'POPULATE-MATCH_ID': case 'POPULATE-REVERSE_MATCH_ID':
+						processKabaddiProcedures('ANIMATE-IN-MATCH_ID');		
+						break;
+					case 'POPULATE-RAID':	
+						processKabaddiProcedures('ANIMATE-IN-RAID');		
+						break;
+					case 'POPULATE-DO_DIE':	
+						processKabaddiProcedures('ANIMATE-IN-DO_DIE');		
+						break;
+					case 'POPULATE-SECOND_DO_DIE':
+						processKabaddiProcedures('ANIMATE-IN-SECOND_DO_DIE');		
+						break;
+					case 'POPULATE-SUPER':
+						processKabaddiProcedures('ANIMATE-IN-SUPER');		
+						break;
+					case 'POPULATE-TACKLE':
+						processKabaddiProcedures('ANIMATE-IN-TACKLE');		
+						break;
+					case 'POPULATE-BONUS':
+						processKabaddiProcedures('ANIMATE-IN-BONUS');		
+						break;
+					case 'POPULATE-BONUS2':
+						processKabaddiProcedures('ANIMATE-IN-BONUS2');		
+						break;
 					}
 				}
 				break;
@@ -375,6 +485,115 @@ function addItemsToList(whatToProcess, dataToProcess)
 	var div,row,header_text,event_text,select,option,tr,th,thead,text,table,tbody,teamName;
 	var cellCount=0;
 	switch (whatToProcess) {
+	case 'DO_DIE1_OPTION': case 'DO_DIE2_OPTION': case 'SUPERTACKLE1_OPTION': case 'SUPERTACKLE2_OPTION':
+	case 'CHROMA_OPTION':
+			switch ($('#selectedBroadcaster').val()) {
+			case 'KABADDI_GIPKL_AR':
+
+				$('#select_graphic_options_div').empty();
+		
+				header_text = document.createElement('h6');
+				header_text.innerHTML = 'Select Graphic Options';
+				document.getElementById('select_graphic_options_div').appendChild(header_text);
+				
+				table = document.createElement('table');
+				table.setAttribute('class', 'table table-bordered');
+						
+				tbody = document.createElement('tbody');
+		
+				table.appendChild(tbody);
+				document.getElementById('select_graphic_options_div').appendChild(table);
+				
+				row = tbody.insertRow(tbody.rows.length);
+				
+				switch(whatToProcess){
+					case 'CHROMA_OPTION':
+						captions = [0,1,2,3,4,5,6];
+			
+						select = document.createElement('select');
+						select.id = 'selectChroma';
+						select.name = select.id;
+						
+						captions.forEach(function(caption) {
+				        	option = document.createElement('option');
+							option.value = caption;
+							option.text = caption;
+							select.appendChild(option);
+						});
+						
+						select.setAttribute('onchange',"processUserSelection(this)");
+						row.insertCell(cellCount).appendChild(select);
+						cellCount = cellCount + 1;
+						break;
+					case 'DO_DIE1_OPTION': case 'DO_DIE2_OPTION': case 'SUPERTACKLE1_OPTION': case 'SUPERTACKLE2_OPTION':
+						select = document.createElement('select');
+						select.id = 'selectTeam';
+						select.name = select.id;
+						
+						option = document.createElement('option');
+						option.value = match_data.homeTeamId;
+						option.text = match_data.homeTeam.teamName1;
+						select.appendChild(option);
+						
+						option = document.createElement('option');
+						option.value = match_data.awayTeamId;
+						option.text = match_data.awayTeam.teamName1;
+						select.appendChild(option);
+						
+						select.setAttribute('onchange',"processUserSelection(this)");
+						row.insertCell(cellCount).appendChild(select);
+						cellCount = cellCount + 1;
+						
+						break;
+					}
+				
+				option = document.createElement('input');
+			    option.type = 'button';
+				switch (whatToProcess) {
+				case 'CHROMA_OPTION':
+					option.name = 'populate_chroma_btn';
+				    option.value = 'USE';
+					break;
+				case 'DO_DIE1_OPTION':
+				    option.name = 'populate_do_die1_btn';
+				    option.value = 'Populate';
+					break;
+				case 'DO_DIE2_OPTION':
+				    option.name = 'populate_do_die2_btn';
+				    option.value = 'Populate';
+					break;
+				case 'SUPERTACKLE1_OPTION':
+				    option.name = 'populate_super1_btn';
+				    option.value = 'Populate';
+					break;
+				case 'SUPERTACKLE2_OPTION':
+				    option.name = 'populate_super2_btn';
+				    option.value = 'Populate';
+					break;			
+				}
+			    option.id = option.name;
+			    option.setAttribute('onclick',"processUserSelection(this)");
+			    
+			    div = document.createElement('div');
+			    div.append(option);
+
+				option = document.createElement('input');
+				option.type = 'button';
+				option.name = 'cancel_graphics_btn';
+				option.id = option.name;
+				option.value = 'Cancel';
+				option.setAttribute('onclick','processUserSelection(this)');
+		
+			    div.append(option);
+			    
+			    row.insertCell(cellCount).appendChild(div);
+			    cellCount = cellCount + 1;
+			    
+				document.getElementById('select_graphic_options_div').style.display = '';
+
+				break;
+			}
+			break;	
 	case 'LOAD_EVENTS':
 		
 		$('#select_event_div').empty();

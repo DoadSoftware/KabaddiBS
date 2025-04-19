@@ -29,9 +29,9 @@
 
 		processUserSelectionData('LOGGER_FORM_KEYPRESS',e.which);
 	});
-	setInterval(() => {
+	/* setInterval(() => {
 		processKabaddiProcedures('READ-MATCH-AND-POPULATE');		
-		}, 2500);
+		}, 2500); */
   </script>  
 </head>
 <!-- <body onload="afterPageLoad('MATCH');"> -->

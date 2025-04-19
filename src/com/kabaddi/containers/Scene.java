@@ -48,7 +48,7 @@ public class Scene {
 	public void scene_load(PrintWriter print_writer, String broadcaster) throws InterruptedException
 	{
 		switch (broadcaster.toUpperCase()) {
-		case KabaddiUtil.KABADDI: case "KABADDI_GIPKL":case "KABADDI_GIPKL_AR":case "KABADDI_GIPKL_BS":
+		case KabaddiUtil.KABADDI: case "KABADDI_GIPKL":case "KABADDI_GIPKL_BS":
 			switch(this.which_layer.toUpperCase()) {
 			case KabaddiUtil.ONE:
 				//System.out.println("Secne : " + this.scene_path);
@@ -56,6 +56,38 @@ public class Scene {
 				
 				print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
 				print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+				TimeUnit.MILLISECONDS.sleep(500);
+				break;
+			case KabaddiUtil.TWO:
+				print_writer.println("LAYER2*EVEREST*SINGLE_SCENE LOAD " + this.scene_path + ";");
+				
+				print_writer.println("LAYER2*EVEREST*STAGE*DIRECTOR*In STOP;");
+				print_writer.println("LAYER2*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+				TimeUnit.MILLISECONDS.sleep(500);
+				break;
+			/*
+			 * case KabaddiUtil.THREE:
+			 * print_writer.println("LAYER3*EVEREST*SINGLE_SCENE LOAD " + this.scene_path +
+			 * ";");
+			 * 
+			 * print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.00;");
+			 * print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*LOOP START;");
+			 * TimeUnit.MILLISECONDS.sleep(500); break;
+			 */
+			}
+			break;
+		}
+	}
+	public void scene_load(String broadcaster,PrintWriter print_writer) throws InterruptedException
+	{
+		switch (broadcaster.toUpperCase()) {
+		case "KABADDI_GIPKL_AR":
+			switch(this.which_layer.toUpperCase()) {
+			case KabaddiUtil.ONE:
+				//System.out.println("Secne : " + this.scene_path);
+				print_writer.println("LAYER3*EVEREST*SCENE LOAD " + this.scene_path + ";");
+				print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+				print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
 				TimeUnit.MILLISECONDS.sleep(500);
 				break;
 			case KabaddiUtil.TWO:

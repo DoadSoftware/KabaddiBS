@@ -170,8 +170,9 @@ public class IndexController
 			break;
 		
 		case "KABADDI_GIPKL_AR":
-			session_selected_scenes.add(new Scene("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Scenes\\BS.sum",KabaddiUtil.ONE)); 
-			session_selected_scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
+			session_selected_scenes.add(new Scene("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Matt_Scenes\\MatchID.sum",KabaddiUtil.ONE)); 
+			session_selected_scenes.get(0).scene_load(session_selected_broadcaster,print_writer);
+			
 			break;
 		case KabaddiUtil.KABADDI:
 			session_selected_scenes.add(new Scene("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_UPKL_2024\\Scenes\\Big_Screen.sum",KabaddiUtil.ONE)); // Front layer
@@ -411,15 +412,17 @@ public class IndexController
 		default:
 			
 			switch (session_selected_broadcaster) {
-			case KabaddiUtil.KABADDI:
-				this_Kabaddi.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
-				break;
-			case "KABADDI_GIPKL":case "KABADDI_GIPKL_BS":
-				this_GIPKL.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
-				break;
 			case "KABADDI_GIPKL_AR":
 				this_GIPKL_AR.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
 				break;
+			
+			case "KABADDI_GIPKL":case "KABADDI_GIPKL_BS":
+				this_GIPKL.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
+				break;
+			case KabaddiUtil.KABADDI:
+				this_Kabaddi.ProcessGraphicOption(whatToProcess, session_match, SwapMatch, kabaddiService, print_writer, session_selected_scenes, valueToProcess);
+				break;
+			
 			}
 			return JSONObject.fromObject(session_match).toString();
 		}

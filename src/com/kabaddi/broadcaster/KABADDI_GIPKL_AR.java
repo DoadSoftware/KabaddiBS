@@ -32,7 +32,7 @@ import com.kabaddi.controller.IndexController;
 
 public class KABADDI_GIPKL_AR extends Scene {
 
-	public String session_selected_broadcaster = "KABADDI_GIPKL";
+	public String session_selected_broadcaster = "KABADDI_GIPKL_AR";
 
 	public ScoreBug scorebug = new ScoreBug();
 	public String which_graphics_onscreen = "";
@@ -48,11 +48,7 @@ public class KABADDI_GIPKL_AR extends Scene {
 
 	public ScoreBug updateScoreBug(List<Scene> scenes, Match match, Match swapMatch, PrintWriter print_writer)throws InterruptedException, MalformedURLException, IOException {
 		
-		if(which_graphics_onscreen.equalsIgnoreCase("SCOREBUG")) {
-			scorebug = populateScoreBug(true, scorebug, print_writer, swapMatch,session_selected_broadcaster);
-		}else if(which_graphics_onscreen.equalsIgnoreCase("SCORELINE")) {
-			scorebug = populateScoreLine(true, scorebug, print_writer, match,session_selected_broadcaster);
-		}
+		
 		return scorebug;
 	}
 	
@@ -61,115 +57,98 @@ public class KABADDI_GIPKL_AR extends Scene {
 
 		switch (whatToProcess.toUpperCase()) {
 		//ScoreBug
-		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
-		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
+		case "POPULATE-MATCH_ID": case "POPULATE-RAID": case "POPULATE-DO_DIE": case "POPULATE-BONUS2":
+		case "POPULATE-SECOND_DO_DIE": case "POPULATE-SUPER": case "POPULATE-TACKLE": case "POPULATE-BONUS":
+		case "POPULATE-CHROMA": case "POPULATE-SECOND_BONUS": case "POPULATE-REVERSE_MATCH_ID":
+			
 		switch (whatToProcess.toUpperCase()) {
-		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
-			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
-			break;
-		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
-			if(IndexController .session_Configurations.getIpAddress().equalsIgnoreCase("localhost")) {
-				scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
-				scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
-			}else {
-				scenes.get(0).setScene_path("\\\\" + IndexController.session_Configurations.getIpAddress() + valueToProcess.split(",")[0].replace("D:", "d:"));
-				scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
-			}
+		case "POPULATE-SCOREBUG": case "POPULATE-MATCH_ID": case "POPULATE-RAID": case "POPULATE-DO_DIE":
+		case "POPULATE-SECOND_DO_DIE": case "POPULATE-SUPER": case "POPULATE-TACKLE": case "POPULATE-BONUS":
+		case "POPULATE-SECOND_BONUS": case "POPULATE-REVERSE_MATCH_ID": case "POPULATE-BONUS2":
+			
+			scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
+			scenes.get(0).scene_load(session_selected_broadcaster,print_writer);
 			
 			break;
 		}
 		switch (whatToProcess.toUpperCase()) {
-		case "POPULATE-SCOREBUG":
-			populateScoreBug(false, scorebug, print_writer, swapMatch,session_selected_broadcaster);
+		case "POPULATE-CHROMA":
+			populateChroma(print_writer,valueToProcess, match, session_selected_broadcaster);
 			break;
-		case "POPULATE-SCORELINE":
-			populateScoreLine(false, scorebug, print_writer, match,session_selected_broadcaster);
-			break;
-		case "POPULATE-TOURNAMENT_LOGO":
-			populateTournamentLogo(false, scorebug, print_writer, match, session_selected_broadcaster);
-			break;
-		case "POPULATE-GOLDEN_RAID":
-			populateGoldenRaid(false, scorebug, print_writer, match, session_selected_broadcaster);
-			break;
-		case "POPULATE-FF_MATCH_ID":
+		case "POPULATE-MATCH_ID":
 			populateMatchId(print_writer, match, session_selected_broadcaster);
 			break;
-		case "POPULATE-FF_MATCH_PROMO":
-			Fixture fixture = KabaddiFunctions.processAllFixtures(kabaddiService).stream().filter(fix->fix.getMatchnumber()==
-					Integer.valueOf(valueToProcess.split(",")[1])).findAny().orElse(null);
-			
-			Ground Ground = kabaddiService.getGround(fixture.getVenue());
-			populateMatchPromo(print_writer, match,fixture,Ground, session_selected_broadcaster);
+		case "POPULATE-BONUS": case "POPULATE-SECOND_BONUS": case "POPULATE-BONUS2":
+			populateBonus(print_writer, match, session_selected_broadcaster);
 			break;
-		case "POPULATE-FF_GRAPHICS":
-			populateFF_EXCEL(whatToProcess,valueToProcess.substring(valueToProcess.lastIndexOf(",")+1),print_writer,kabaddiService.getAllPlayer());
+		case "POPULATE-RAID":
+			populateRaid(print_writer, valueToProcess, match, session_selected_broadcaster);
 			break;
-		case "POPULATE-FF_TOURNAMENT ROULES":
-			  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 240.0;");
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-			  print_writer.
-			  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
-			  print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
-			  TimeUnit.SECONDS.sleep(1);
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-			  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
+		case "POPULATE-DO_DIE":	
+			populateDoDie(print_writer, Integer.valueOf(valueToProcess.split(",")[1])
+					, match, session_selected_broadcaster,kabaddiService);
+			break;
+		case "POPULATE-SECOND_DO_DIE":
+			populateSecondDoDie(print_writer, Integer.valueOf(valueToProcess.split(",")[1])
+					, match, session_selected_broadcaster,kabaddiService);
+			break;
+		case "POPULATE-SUPER":
+			populateSuper(print_writer, Integer.valueOf(valueToProcess.split(",")[1])
+					, match, session_selected_broadcaster,kabaddiService);
+			break;
+		case "POPULATE-TACKLE":
+			populateTackle(print_writer, Integer.valueOf(valueToProcess.split(",")[1])
+					, match, session_selected_broadcaster,kabaddiService);
 			break;
 		}
-			
-		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":
-		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO": case "ANIMATE-IN-GOLDEN_RAID":
-		case "ANIMATE-IN-FF_MATCH_ID":case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":case "ANIMATE-IN-FF_FF_GRAPHICS":
+		
+		case "CLEAR-ALL":
+		case "ANIMATE-IN-MATCH_ID":	case "ANIMATE-OUT": case "ANIMATE-IN-DO_DIE": case "ANIMATE-IN-SECOND_DO_DIE": case "ANIMATE-IN-SUPER":
+		case "ANIMATE-IN-TACKLE": case "ANIMATE-IN-BONUS": case "ANIMATE-IN-SECOND_BONUS": case "ANIMATE-IN-BONUS2":
 			switch (whatToProcess.toUpperCase()) {
 
-			case "ANIMATE-IN-SCOREBUG":
-				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				is_infobar = true;
-				which_graphics_onscreen = "SCOREBUG";
+			case "ANIMATE-IN-MATCH_ID":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "MATCH_ID";
 				break;
-			case "ANIMATE-IN-SCORELINE": 
-				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				is_infobar = true;
-				which_graphics_onscreen = "SCORELINE";
+			case "ANIMATE-IN-DO_DIE":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "DO_DIE";
 				break;
-			case "ANIMATE-IN-TOURNAMENT_LOGO":
-				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				is_infobar = true;
-				which_graphics_onscreen = "TOURNAMENT_LOGO";
+			case "ANIMATE-IN-SECOND_DO_DIE":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "SECOND_DO_DIE";
 				break;
-			case "ANIMATE-IN-GOLDEN_RAID":
-				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				is_infobar = true;
-				which_graphics_onscreen = "GOLDEN_RAID";
+			case "ANIMATE-IN-SUPER":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "SUPER";
+				break;
+			case "ANIMATE-IN-TACKLE":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "TACKLE";
+				break;
+			case "ANIMATE-IN-BONUS": case "ANIMATE-IN-BONUS2":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "BONUS";
+				break;
+			case "ANIMATE-IN-SECOND_BONUS":
+				processAnimation(print_writer, "In", "START", session_selected_broadcaster,3);
+				which_graphics_onscreen = "SECOND_BONUS";
 				break;
 			case "CLEAR-ALL":
 				print_writer.println("LAYER1*EVEREST*SINGLE_SCENE CLEAR;");
 				print_writer.println("LAYER2*EVEREST*SINGLE_SCENE CLEAR;");
 				print_writer.println("LAYER3*EVEREST*SINGLE_SCENE CLEAR;");
 				which_graphics_onscreen = "";
-				is_infobar = false;
-				break;
-			case "ANIMATE-OUT-SCOREBUG":
-				processAnimation(print_writer, "Out", "START", session_selected_broadcaster,1);
-				is_infobar = false;
-				which_graphics_onscreen="";
 				break;
 			case "ANIMATE-OUT":
-				processAnimation(print_writer, "Out", "START", session_selected_broadcaster,1);
-				TimeUnit.SECONDS.sleep(1);
-				which_graphics_onscreen="";
-				break;
-			case "RESET-ALL-ANIMATION":
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tAwayRaiderClock TIMER_OFFSET 30;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tHomeRaiderClock TIMER_OFFSET 30;");
-				break;
-			case "ANIMATE-IN-FF_MATCH_ID": case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":
-			case "ANIMATE-IN-FF_FF_GRAPHICS":
-				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
-				which_graphics_onscreen = "MATCH_ID";
+				switch (which_graphics_onscreen.toUpperCase()) {
+					case "MATCH_ID": case "DO_DIE": case "SECOND_DO_DIE": case "SUPER": case "TACKLE":
+					case "BONUS": case "SECOND_BONUS":
+						processAnimation(print_writer, "Out", "START", session_selected_broadcaster,3);
+						which_graphics_onscreen = "";
+						break;
+				}
 				break;
 			}
 			break;
@@ -182,7 +161,7 @@ public class KABADDI_GIPKL_AR extends Scene {
 	public void processAnimation(PrintWriter print_writer, String animationName,String animationCommand, String which_broadcaster,int which_layer) throws IOException
 	{
 		switch(which_broadcaster.toUpperCase()) {
-		case "KABADDI_GIPKL":
+		case "KABADDI_GIPKL_AR":
 			switch(which_layer) {
 			case 1:
 				print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*" + animationName + " " + animationCommand + ";");
@@ -190,669 +169,196 @@ public class KABADDI_GIPKL_AR extends Scene {
 			case 2:
 				print_writer.println("LAYER2*EVEREST*STAGE*DIRECTOR*" + animationName + " " + animationCommand + ";");
 				break;
+			case 3:
+				print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*" + animationName + " " + animationCommand + ";");
+				break;
 			}
 			break;
 		}
 	}
 	
-	public void populateMatchId(PrintWriter print_writer, Match match,String session_selected_broadcaster) throws InterruptedException {
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHeader "
-				+ match.getMatchIdent().toUpperCase()+ ";");
-
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path
-				+ match.getHomeTeam().getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-		
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_AwayLogo " + logo_path
-				+ match.getAwayTeam().getTeamBadge().toUpperCase()+ KabaddiUtil.PNG_EXTENSION + ";");
-		
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " + "LIVE FROM "
-				+ match.getVenueName().toUpperCase() + ";");
-		
-		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 240.0;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-		  print_writer.
-		  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
-		  print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
-		  TimeUnit.SECONDS.sleep(1);
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
-		 
-
-	}
-	
-	private void populateMatchPromo(PrintWriter print_writer, Match match, Fixture fixture, Ground ground,
-			String session_selected_broadcaster) throws InterruptedException {
-		
-		String match_name="";
-		
-		if(fixture.getMatchnumber() < 10) {
-			match_name = "MATCH " + fixture.getMatchnumber();
-		}else {
-			match_name = fixture.getMatchfilename().toUpperCase();
-		}
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHeader "
-				+ match_name + ";");
-
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path
-				+ fixture.getHome_Team().getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-		
-		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_AwayLogo " + logo_path
-				+ fixture.getAway_Team().getTeamBadge().toUpperCase()+ KabaddiUtil.PNG_EXTENSION + ";");
-		
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, +1);
-		if(fixture.getDate().equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy").format(cal.getTime()))) {
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " + "TOMORROW - " + fixture.getTime() +" IST "+ ";");	
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tBottomInfo FROM " + 
-					ground.getFullname()+ ";");
-
-		}else {
-			cal.add(Calendar.DATE, -1);
-			if(fixture.getDate().equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy").format(cal.getTime()))) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " + "UP NEXT - " + fixture.getTime() +" IST "+ ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tBottomInfo FROM " + ground.getFullname()+ ";");
-
-			}else {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " +
-			LocalDate.parse(fixture.getDate(), DateTimeFormatter.ofPattern("dd-MM-yyyy")).
-			format(DateTimeFormatter.ofPattern("dd-MMM-yyyy")).toUpperCase()+" - " 
-						+ fixture.getTime()+" IST " + ";");	
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tBottomInfo FROM " +
-						ground.getFullname()+ ";");
-
-			}
-		}
-		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 240.0;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-		  print_writer.
-		  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
-		  print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
-		  TimeUnit.SECONDS.sleep(1);
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-		  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-		  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
-		
-	}
-	private void populateFF_EXCEL(String whatToProcess, String ValueToProcess, PrintWriter printWriter, List<Player> allPlayer) throws InterruptedException {
-        Map<String, Object> rowData = KabaddiFunctions.ReadExcel(KabaddiUtil.FF_EXCEL).get(ValueToProcess);
-
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHeader " + 
-    	        (rowData.get("HEADER") != null ? rowData.get("HEADER").toString().trim() : "") + ";");
-        
-        if ((rowData.get("IS NAME?") != null ? rowData.get("IS NAME?").toString().trim() : "").toString().equalsIgnoreCase("Y")) {
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead " +  (rowData.get("SUB HEADER") != null ? rowData.get("SUB HEADER").toString().trim() : "") + ";");
-        } else {
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead  ;");
-        }
-        
-		int cols = rowData.get("COLS") != null ? (rowData.get("COLS") instanceof Number ? ((Number) rowData.get("COLS")).intValue() : Integer.parseInt(rowData.get("COLS").toString().trim())) : 0;
-        int rows = rowData.get("ROWS") != null ? (rowData.get("ROWS") instanceof Number ? ((Number) rowData.get("ROWS")).intValue() : Integer.parseInt(rowData.get("ROWS").toString().trim())) : 0;
-        
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectRows " + Math.abs(cols) + " ;");
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectColumm " + (rows-1) + " ;");
-
-        // Header of table
-        for (int j = 1; j <= cols; j++) {
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead0" + j + " " + 
-            		(rowData.get("H" + j) != null ? rowData.get("H" + j).toString().trim() : "") + ";");
-        }
-
-        // Body of table
-        for (int i = 1; i <= rows; i++) {
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "A " + (rowData.get("R" + i + ".1") != null ? rowData.get("R" + i + ".1").toString().trim() : "") + ";");
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "B " + (rowData.get("R" + i + ".2") != null ? rowData.get("R" + i + ".2").toString().trim() : "") + ";");
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "C " + (rowData.get("R" + i + ".3") != null ? rowData.get("R" + i + ".3").toString().trim() : "") + ";");
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "D " + (rowData.get("R" + i + ".4") != null ? rowData.get("R" + i + ".4").toString().trim() : "") + ";");
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "E " + (rowData.get("R" + i + ".5") != null ? rowData.get("R" + i + ".5").toString().trim() : "") + ";");
-
-        }
-        
-	  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 160.0;");
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-	  printWriter.
-	  println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
-	  printWriter.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
-	  TimeUnit.SECONDS.sleep(1);
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-	  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-	  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
-
-}
-	/*public ScoreBug populateScoreBug(boolean is_this_updating, ScoreBug scorebug, PrintWriter print_writer,
-			Match match, String selectedbroadcaster) throws IOException {
+	public void populateMatchId(PrintWriter print_writer, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
 		if (match == null) {
-			System.out.println("ERROR: ScoreBug -> Match is null");
+			System.out.println("ERROR: Match -> Match is null");
 		} else {
 			
-//			LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tagID TIMER_DURATION 30;
-//			LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tagID TIMER_DIRECTION 0; // 0 for backwards and 1 for forward.
-//			LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*FUNCTION*TIMER SET STOP INVOKE;
-//			LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tagID TIMER_SHOW_MINUTES 0; // 0 for Hide and 1 for Show.
-			
-			if(is_this_updating == false) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 1 ;");
-				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + " " + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + match.getMatchIdent() + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
-						match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 
-						match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderClock 0;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderClock 0;");
-				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHead " + match.getMatchIdent().toUpperCase() + ";");
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeTeamName " + match.getHomeTeam().getTeamName2() + "\n" 
+					+ match.getHomeTeam().getTeamName3() + ";");
 
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName ;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName ;");
-			}
-			
-			if(match.getClock() != null && match.getClock().getMatchHalves() != null) {
-				
-//				if(match.getClock().getMatchTimeStatus().equalsIgnoreCase(KabaddiUtil.PAUSE)) {
-//					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*FUNCTION*TIMER SET PAUSE INVOKE;");
-//				}else if(match.getClock().getMatchTimeStatus().equalsIgnoreCase(KabaddiUtil.START)) {
-//					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*FUNCTION*TIMER SET CONTINUE INVOKE;");
-//				}
-				
-				if(match.getClock().getMatchHalves().equalsIgnoreCase(KabaddiUtil.FIRST)) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "1st HALF" + ";");
-				}else if(match.getClock().getMatchHalves().equalsIgnoreCase(KabaddiUtil.SECOND)) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "2nd HALF" + ";");
-				}else if(match.getClock().getMatchHalves().equalsIgnoreCase("extra1")) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "ET 1" + ";");
-				}else if(match.getClock().getMatchHalves().equalsIgnoreCase("extra2")) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "ET 2" + ";");
-				}else if(match.getClock().getMatchHalves().equalsIgnoreCase("half")) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "HALF TIME" + ";");
-				}else if(match.getClock().getMatchHalves().equalsIgnoreCase("full")) {
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + "FULL TIME" + ";");
-				}
-			}
-			
-			
-			if(match.getHomeTeamScore() == 0 && match.getAwayTeamScore() == 0) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 0 ;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tScore " + match.getHomeTeamScore() + "-" + match.getAwayTeamScore() + ";");
-			}else {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 1 ;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tScore " + match.getHomeTeamScore() + "-" + match.getAwayTeamScore() + ";");
-			}
-			
-			
-			if(match.getApi_Match() != null) {
-				for(PlayerStats plyr : match.getApi_Match().getHomeTeamStats().getPlayerStats()) {
-					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
-					    if(Integer.parseInt(match.getHomeTeam().getTeamApiId()) == Integer.parseInt(match.getApi_Match().getHomeTeam().getTeamApiId())) {
-					    	for(Player hs : match.getHomeSquad()) {
-					    		if(Integer.parseInt(hs.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
-					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 1;");
-									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName " + hs.getJersey_number() + " " + hs.getTicker_name() + ";");
-									
-									is_home_raider_in = true;
-					    		}
-					    	}
-					    }
-						break;
-					}else {
-						is_home_raider_in = false;
-					}
-				}
-				
-				
-				for(PlayerStats plyr : match.getApi_Match().getAwayTeamStats().getPlayerStats()) {
-					if(plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
-						if(Integer.parseInt(match.getAwayTeam().getTeamApiId()) == Integer.parseInt(match.getApi_Match().getAwayTeam().getTeamApiId())) {
-					    	for(Player as : match.getAwaySquad()) {
-					    		if(Integer.parseInt(as.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
-					    			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 1;");
-									print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName " + 
-											as.getJersey_number() + " " + as.getTicker_name() + ";");
-									is_away_raider_in = true;
-					    		}
-					    	}
-					    }
-						break;
-					}else {
-						is_away_raider_in = false;
-					}
-				}
-			}
-			
-			if(match.getApi_Match() != null) {
-				for(int i=1;i<=7;i++) {
-					if(i <= match.getApi_Match().getHomeTeamStats().getNo_of_players_on_court()) {
-						print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomePlayer" + i + " 100;");
-					}else {
-						print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomePlayer" + i + " 50;");
-					}
-					
-					if(i <= match.getApi_Match().getAwayTeamStats().getNo_of_players_on_court()) {
-						print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayPlayer" + i + " 100;");
-					}else {
-						print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayPlayer" + i + " 50;");
-					}
-				}
-			}
-			
-			if(is_home_raider_in == false) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
-			}
-			
-			if(is_away_raider_in == false) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
-			}
-		}
-		
-		return scorebug;
-	}*/
-	
-	public ScoreBug populateTournamentLogo(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
-	        Match match, String selectedBroadcaster) throws IOException {
-	    if (match == null) {
-	        System.out.println("ERROR: ScoreBug -> Match is null");
-	        return scorebug;
-	    }
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 0;");
-	   return scorebug;
-	}
-	public ScoreBug populateGoldenRaid(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
-	        Match match, String selectedBroadcaster) throws IOException {
-	    if (match == null) {
-	        System.out.println("ERROR: ScoreBug -> Match is null");
-	        return scorebug;
-	    }
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 3;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Golden Raid$VS_Score$Time*FUNCTION*TIMER SET PAUSE INVOKE;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tGoldenTimer TIMER_OFFSET " + "30" + ";");
-	   return scorebug;
-	}
-	
-	public ScoreBug populateScoreLine(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
-	        Match match, String selectedBroadcaster) throws IOException {
-	    if (match == null) {
-	        System.out.println("ERROR: ScoreBug -> Match is null");
-	        return scorebug;
-	    }
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayTeamName " + match.getAwayTeam().getTeamName2() + "\n" 
+					+ match.getAwayTeam().getTeamName3() + ";");
 
-	    if (!isThisUpdating) {
-	    	printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 2;");
-		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
-		            match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-		    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 
-		            match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-	    }
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					match.getHomeTeam().getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeam " + logo_path + 
+					match.getAwayTeam().getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
 
-	    updateScore(printWriter, match);
-	    
-	    updateScorelineMatchClock(printWriter, match);
-
-	    return scorebug;
-	}
-	
-	public ScoreBug populateScoreBug(boolean isThisUpdating, ScoreBug scorebug, PrintWriter printWriter,
-	        Match match, String selectedBroadcaster) throws IOException {
-	    if (match == null) {
-	        System.out.println("ERROR: ScoreBug -> Match is null");
-	        return scorebug;
-	    }
-
-	    if (!isThisUpdating) {
-	        updateStaticMatchInfo(printWriter, match);
-	    }
-
-	    updateScore(printWriter, match);
-	    
-	    updateMatchClock(printWriter, match);
-
-	    updateRaiderInfo(printWriter, match);
-
-	    updatePlayerStatus(printWriter, match);
-
-	    return scorebug;
-	}
-
-	private void updateStaticMatchInfo(PrintWriter printWriter, Match match) {
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectLogo_Data 1;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader " + match.getMatchIdent() + ";");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeamLogo " + logo_path + 
-	            match.getHomeTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgAwayTeamLogo " + logo_path + 
-	            match.getAwayTeam().getTeamBadge() + KabaddiUtil.PNG_EXTENSION + ";");
-
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderClock 0;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderClock 0;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName ;");
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName ;");
-	}
-
-	private void updateMatchClock(PrintWriter printWriter, Match match) {
-	    if (match.getClock() != null && match.getClock().getMatchHalves() != null) {
-	        String matchHalf = match.getClock().getMatchHalves();
-	        String subHeader;
-	        int active_value = 1;
-	        
-	        switch (matchHalf) {
-		        case "first":
-	                subHeader = "1st HALF";
-	                active_value = 1;
-	                break;
-	            case "second":
-	                subHeader = "2nd HALF";
-	                active_value = 1;
-	                break;
-	            case "extra1":
-	                subHeader = "5-5 RAIDS";
-	                active_value = 0;
-	                break;
-	            case "extra2":
-	                subHeader = "GOLDEN RAID";
-	                active_value = 0;
-	                break;
-	            case "half":
-	                subHeader = "HALF TIME";
-	                active_value = 1;
-	                break;
-	            case "full":
-	                subHeader = "FULL TIME";
-	                active_value = 1;
-	                break;
-	            default:
-	                subHeader = "";
-	                active_value = 0;
-	                break;
-	        }
-
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main$Select$Data$Clock*CONTAINER SET ACTIVE " + active_value + ";");
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader02 " + subHeader + ";");
-	    }
-	}
-
-
-	private void updateScore(PrintWriter printWriter, Match match) {
-	    String score = match.getHomeTeamScore() + "-" + match.getAwayTeamScore();
-	    if (match.getHomeTeamScore() == 0 && match.getAwayTeamScore() == 0) {
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 0 ;");
-	    } else {
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vScoreVS 1 ;");
-	    }
-	    printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tScore " + score + ";");
-	}
-
-	private void updateRaiderInfo(PrintWriter printWriter, Match match) {
-	    boolean isHomeRaiderIn = false;
-	    boolean isAwayRaiderIn = false;
-
-	    if (match.getApi_Match() != null) {
-	        isHomeRaiderIn = updateRaiderName(printWriter, match, true);
-	        isAwayRaiderIn = updateRaiderName(printWriter, match, false);
-	    }
-
-	    if (!isHomeRaiderIn) {
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 0;");
-	    }
-
-	    if (!isAwayRaiderIn) {
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 0;");
-	    }
-	}
-
-	private boolean updateRaiderName(PrintWriter printWriter, Match match, boolean isHomeTeam) {
-	    List<PlayerStats> playerStatsList = isHomeTeam ? match.getApi_Match().getHomeTeamStats().getPlayerStats() 
-	            : match.getApi_Match().getAwayTeamStats().getPlayerStats();
-	    List<Player> squad = isHomeTeam ? match.getHomeSquad() : match.getAwaySquad();
-	    String teamApiId = isHomeTeam ? match.getHomeTeam().getTeamApiId() : match.getAwayTeam().getTeamApiId();
-
-	    for (PlayerStats plyr : playerStatsList) {
-	        if (plyr.getPlayer_raiding_now() != null && plyr.getPlayer_raiding_now().equalsIgnoreCase("true")) {
-	            if (Integer.parseInt(teamApiId) == Integer.valueOf(plyr.getPlayerId())) {
-	                for (Player player : squad) {
-	                    if (Integer.parseInt(player.getPlayerAPIId()) == Integer.valueOf(plyr.getPlayerId())) {
-	                        String raiderName = player.getJersey_number() + " " + player.getTicker_name();
-	                        if (isHomeTeam) {
-	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomeRaiderName 1;");
-	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeRaiderName " + raiderName + ";");
-	                        } else {
-	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayRaiderName 1;");
-	                            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tAwayRaiderName " + raiderName + ";");
-	                        }
-	                        return true;
-	                    }
-	                }
-	            }
-	            break;
-	        }
-	    }
-	    return false;
-	}
-
-	private void updatePlayerStatus(PrintWriter printWriter, Match match) {
-	    if (match.getApi_Match() != null) {
-	        for (int i = 1; i <= 7; i++) {
-	            int homeStatus = i <= match.getApi_Match().getHomeTeamStats().getNo_of_players_on_court() ? 100 : 50;
-	            int awayStatus = i <= match.getApi_Match().getAwayTeamStats().getNo_of_players_on_court() ? 100 : 50;
-	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vHomePlayer" + i + " " + homeStatus + ";");
-	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vAwayPlayer" + i + " " + awayStatus + ";");
-	        }
-	    }
-	}
-
-	private void updateScorelineMatchClock(PrintWriter printWriter, Match match) {
-	    if (match.getClock() != null && match.getClock().getMatchHalves() != null) {
-	        String matchHalf = match.getClock().getMatchHalves();
-	        String subHeader;
-	        
-	        switch (matchHalf) {
-	            case "first":
-	                subHeader = "1st HALF";
-	                break;
-	            case "second":
-	                subHeader = "2nd HALF";
-	                break;
-	            case "extra1":
-	                subHeader = "5-5 RAIDS";
-	                break;
-	            case "extra2":
-	                subHeader = "GOLDEN RAID";
-	                break;
-	            case "half":
-	                subHeader = "HALF TIME";
-	                break;
-	            case "full":
-	                subHeader = "FULL TIME";
-	                break;
-	            default:
-	                subHeader = "";
-	                break;
-	        }
-
-	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHeader03 " + subHeader + ";");
-	    }
-	}
-	public void populateScoreLine(PrintWriter print_writer,String viz_sence_path,int side, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
-		if (match == null) {
-			System.out.println("ERROR: ScoreBug -> Match is null");
-		} else {
-			
-			Whichside = 3 - side;
-			
-			if(Whichside == 1) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side1*CONTAINER SET ACTIVE 1;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side2*CONTAINER SET ACTIVE 0;");
-			}else if(Whichside == 2) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side1*CONTAINER SET ACTIVE 0;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side2*CONTAINER SET ACTIVE 1;");
-			}
-			
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + 
-					"$Score*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + match.getHomeTeamScore() + "-" + match.getAwayTeamScore() + ";");
-			
-			if(match.getClock().getMatchHalves().equalsIgnoreCase("first") || match.getClock().getMatchHalves().equalsIgnoreCase("second")){
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + 
-						"$SubHead*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + match.getClock().getMatchHalves().toUpperCase() + " HALF" + ";");
-			}else if(match.getClock().getMatchHalves().equalsIgnoreCase("extra1a") || match.getClock().getMatchHalves().equalsIgnoreCase("extra1b")){
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + 
-						"$SubHead*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + "OVERTIME 1" + ";");
-			}else if(match.getClock().getMatchHalves().equalsIgnoreCase("extra2a") || match.getClock().getMatchHalves().equalsIgnoreCase("extra2b")){
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + 
-						"$SubHead*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + "OVERTIME 2" + ";");
-			}else if(match.getClock().getMatchHalves().equalsIgnoreCase("half") || match.getClock().getMatchHalves().equalsIgnoreCase("full")){
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + 
-						"$SubHead*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + match.getClock().getMatchHalves().toUpperCase() + " TIME" + ";");
-			}else{
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$ScoreGfx$Side" + Whichside + "$SubHead*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + "" + ";");
-			}
-			
-			
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$ScoreGfx$Side" + Whichside + "$Home$Logo*TEXTURE1 "
-					+ "SET TEXTURE_PATH " + logo_path + match.getHomeTeam().getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$ScoreGfx$Side" + Whichside + "$Home$Shadow*TEXTURE1 "
-					+ "SET TEXTURE_PATH " + logo_path + match.getHomeTeam().getTeamName4().toUpperCase()+ KabaddiUtil.PNG_EXTENSION +";");
-			
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$ScoreGfx$Side" + Whichside + "$Away$Logo*TEXTURE1 "
-					+ "SET TEXTURE_PATH " + logo_path + match.getAwayTeam().getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$ScoreGfx$Side" + Whichside + "$Away$Shadow*TEXTURE1 "
-					+ "SET TEXTURE_PATH " + logo_path + match.getAwayTeam().getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-			
-			/*LAYER1*EVEREST*TREEVIEW*Main$All$MatchID$Side1$Away$Logo*TEXTURE1 SET TEXTURE_PATH C:/Images/PHL/Logos/DP.png;*/
-			
 			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*ScoreIn SHOW 28.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
 			TimeUnit.SECONDS.sleep(1);
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*ScoreIn SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
 			
 		}
 	}
-	public void populateStartingLineUp(PrintWriter print_writer,String viz_sence_path,int team_id,int side, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
+	public void populateChroma(PrintWriter print_writer,String data, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
+		print_writer.println("LAYER1*EVEREST*FRONT_IMAGE SAVED_CHROMA " + data + ";");
+	}
+	public void populateBonus(PrintWriter print_writer, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
 		if (match == null) {
-			System.out.println("ERROR: ScoreBug -> Match is null");
+			System.out.println("ERROR: Match -> Match is null");
 		} else {
-			int row_id=0;
-			Whichside = 3 - side;
 			
-			if(Whichside == 1) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side1*CONTAINER SET ACTIVE 1;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side2*CONTAINER SET ACTIVE 0;");
-			}else if(Whichside == 2) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side1*CONTAINER SET ACTIVE 0;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side2*CONTAINER SET ACTIVE 1;");
-			}
-			
-			if(team_id == match.getHomeTeamId()) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-						"$Header*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + match.getHomeTeam().getTeamName1() + ";");
-				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teamlist$Side" + Whichside + "$Logos$LogoGrp$Logo*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + match.getHomeTeam().getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teamlist$Side" + Whichside + "$Logos$LogoGrp$Shadow*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + match.getHomeTeam().getTeamName4().toUpperCase()+ KabaddiUtil.PNG_EXTENSION +";");
-				
-				for(Player hs : match.getHomeSquad()) {
-					row_id = row_id + 1;
-					
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-							"$Team$" + row_id + "$NumberGrp$Number*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + hs.getJersey_number() + ";");
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-							"$Team$" + row_id + "$PlayerName*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + hs.getFull_name() + ";");
-					
-					
-				}
-				
-			}else if(team_id == match.getAwayTeamId()) {
-				row_id =0; 
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-						"$Header*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + match.getAwayTeam().getTeamName1() + ";");
-				
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teamlist$Side" + Whichside + "$Logo*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + match.getAwayTeam().getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teamlist$Side" + Whichside + "$Shadow*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + match.getAwayTeam().getTeamName4().toUpperCase()+ KabaddiUtil.PNG_EXTENSION +";");
-				
-				for(Player as : match.getAwaySquad()) {
-					row_id = row_id + 1;
-					
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-							"$Team$" + row_id + "$NumberGrp$Number*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + as.getJersey_number() + ";");
-					print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teamlist$Side" + Whichside + 
-							"$Team$" + row_id + "$PlayerName*GEOMETRY*TEXT_UTF8 SET TEXT_UTF8 " + as.getFull_name() + ";");
-					
-					
-				}
-			}
-			
+//			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHead " + match.getMatchIdent().toUpperCase() + ";");
+
 			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*TeamListIn SHOW 28.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
 			TimeUnit.SECONDS.sleep(1);
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*TeamListIn SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
+			
 		}
 	}
-	public void populateTeamsLogos(PrintWriter print_writer,String viz_sence_path,int side,List<Team> teams, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
+	public void populateRaid(PrintWriter print_writer,String viz_sence_path, Match match, String selectedbroadcaster) throws IOException, InterruptedException {
 		if (match == null) {
-			System.out.println("ERROR: ScoreBug -> Match is null");
+			System.out.println("ERROR: Match -> Match is null");
 		} else {
 			
-			Whichside = 3 - side;
-			
-			if(Whichside == 1) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teams$Side1*CONTAINER SET ACTIVE 1;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teams$Side2*CONTAINER SET ACTIVE 0;");
-			}else if(Whichside == 2) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teams$Side1*CONTAINER SET ACTIVE 0;");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$BG_GRP$Teams$Side2*CONTAINER SET ACTIVE 1;");
-			}
-			
-			for(int i=0;i<=teams.size()-1;i++) {
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teams$Side" + Whichside + "$Logo" + (i+1) + "$LogoGrp$Logo*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + teams.get(i).getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
-				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main$All$Teams$Side" + Whichside + "$Logo" + (i+1) + "$LogoGrp$Shadow*TEXTURE1 "
-						+ "SET TEXTURE_PATH " + logo_path + teams.get(i).getTeamName4().toUpperCase() + KabaddiUtil.PNG_EXTENSION +";");
-			}
-			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					match.getHomeTeam().getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+
 			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*TeamsIn SHOW 28.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
 			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
 			TimeUnit.SECONDS.sleep(1);
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*TeamsIn SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
-			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
+			
+		}
+	}
+	public void populateDoDie(PrintWriter print_writer,int teamID, Match match, String selectedbroadcaster,KabaddiService kabaddiService) throws IOException, InterruptedException {
+		if (match == null) {
+			System.out.println("ERROR: Match -> Match is null");
+		} else {
+			
+			Team team = kabaddiService.getTeams().stream().filter(tm -> tm.getTeamId() == teamID).findAny().orElse(null);
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					team.getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeTeamName " + "DO" + "\n" + "OR DIE" + ";");
+
+			
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+			TimeUnit.SECONDS.sleep(1);
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
+			
+		}
+	}
+	public void populateSecondDoDie(PrintWriter print_writer,int teamID, Match match, String selectedbroadcaster,KabaddiService kabaddiService) throws IOException, InterruptedException {
+		if (match == null) {
+			System.out.println("ERROR: Match -> Match is null");
+		} else {
+			
+			Team team = kabaddiService.getTeams().stream().filter(tm -> tm.getTeamId() == teamID).findAny().orElse(null);
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					team.getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeTeamName " + "DO" + "\n" + "OR DIE" + ";");
+
+			
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+			TimeUnit.SECONDS.sleep(1);
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
+			
+		}
+	}
+	public void populateSuper(PrintWriter print_writer,int teamID, Match match, String selectedbroadcaster,KabaddiService kabaddiService) throws IOException, InterruptedException {
+		if (match == null) {
+			System.out.println("ERROR: Match -> Match is null");
+		} else {
+			
+			Team team = kabaddiService.getTeams().stream().filter(tm -> tm.getTeamId() == teamID).findAny().orElse(null);
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					team.getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeTeamName " + "SUPER" + "\n" + "TACKLE ON" + ";");
+
+			
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+			TimeUnit.SECONDS.sleep(1);
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
+			
+		}
+	}
+	public void populateTackle(PrintWriter print_writer,int teamID, Match match, String selectedbroadcaster,KabaddiService kabaddiService) throws IOException, InterruptedException {
+		if (match == null) {
+			System.out.println("ERROR: Match -> Match is null");
+		} else {
+			
+			Team team = kabaddiService.getTeams().stream().filter(tm -> tm.getTeamId() == teamID).findAny().orElse(null);
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgHomeTeam " + logo_path + 
+					team.getTeamBadge().toUpperCase() + KabaddiUtil.PNG_EXTENSION + ";");
+			
+			print_writer.println("LAYER3*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHomeTeamName " + "SUPER" + "\n" + "TACKLE ON" + ";");
+
+			
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out STOP;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 88.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT_PATH C:/Temp/Preview.png;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL SNAPSHOT 1920 1080;");
+			TimeUnit.SECONDS.sleep(1);
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*Out SHOW 0.0;");
+			print_writer.println("LAYER3*EVEREST*STAGE*DIRECTOR*In SHOW 0.0;");
+			print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW OFF;");	
 			
 		}
 	}
