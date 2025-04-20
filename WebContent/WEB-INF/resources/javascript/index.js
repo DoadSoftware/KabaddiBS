@@ -222,6 +222,13 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			$("#kabaddi_div").hide();
 			processKabaddiProcedures('LT_FIXTURES_GRAPHICS-OPTIONS');		
 			break;
+		case 80:
+			$("#select_event_div").hide();
+			$("#match_configuration").hide();
+			$("#kabaddi_div").hide();
+			processKabaddiProcedures('PLAYERCOMPARISON_GRAPHICS-OPTIONS');
+
+			break;
 		}
 		
 		break;
@@ -272,6 +279,9 @@ function processUserSelection(whichInput)
 		break;
 	case 'populate_namesuper_btn':
 		processKabaddiProcedures('POPULATE-L3-NAMESUPER');
+		break;
+	case "populate_PlayerComparison_btn":
+		processKabaddiProcedures('POPULATE-FF-PLAYER_COMPARE');
 		break;
 	case 'populate_chroma_btn':
 		processKabaddiProcedures('POPULATE-CHROMA');
@@ -350,6 +360,10 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 	case 'POPULATE-L3-NAMESUPER':
 	 	value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_SingleSlug_'+ $('#selectSingleSlug option:selected').val() + '.sum'+","+
 				$('#selectMatchPromo option:selected').val();
+		break;
+	case "POPULATE-FF-PLAYER_COMPARE":
+		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//PlayervsPlayer.sum'+","+
+				$('#selectPlayerStat option:selected').val();
 		break;
 	case 'POPULATE-BONUS':
 		value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Matt_Scenes/Bonus1.sum';
@@ -435,10 +449,13 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 			case "LT_FIXTURES_GRAPHICS-OPTIONS":
 				addItemsToList('LT_FIXTURES',data);
 				break;
+			case "PLAYERCOMPARISON_GRAPHICS-OPTIONS":
+				addItemsToList('FF_PLAYER_VS_PLAYER',data);
+				break;
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
         	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
         	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
-				
+			case "POPULATE-FF-PLAYER_COMPARE":
 			case 'POPULATE-MATCH_ID': case 'POPULATE-RAID':
         	case 'POPULATE-DO_DIE': case 'POPULATE-SECOND_DO_DIE': case 'POPULATE-SUPER': case 'POPULATE-TACKLE':
         	case 'POPULATE-BONUS': case 'POPULATE-SECOND_BONUS': case 'POPULATE-REVERSE_MATCH_ID': case 'POPULATE-BONUS': case 'POPULATE-BONUS2':
@@ -476,6 +493,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 						break;
 					case "POPULATE-L3-FIXTURES":
 						processKabaddiProcedures('ANIMATE-IN-L3-FIXTURES');	
+						break;
+					case "POPULATE-FF-PLAYER_COMPARE":
+						processKabaddiProcedures('ANIMATE-IN-FF-PLAYER_COMPARE');	
 						break;
 					case 'POPULATE-SECOND_BONUS':
 						processKabaddiProcedures('ANIMATE-IN-SECOND_BONUS');		
@@ -1066,6 +1086,61 @@ function addItemsToList(whatToProcess, dataToProcess)
 	
 	    document.getElementById('select_graphic_options_div').style.display = '';
 	    break;
+	    
+    case 'FF_PLAYER_VS_PLAYER':
+
+		header_text = document.createElement('h6');
+	    header_text.innerHTML = 'Select Graphic Options';
+	    document.getElementById('select_graphic_options_div').appendChild(header_text);
+	
+	    table = document.createElement('table');
+	    table.setAttribute('class', 'table table-bordered');
+	
+	    tbody = document.createElement('tbody');
+	    table.appendChild(tbody);
+	    document.getElementById('select_graphic_options_div').appendChild(table);
+	
+	    row = tbody.insertRow();
+	    cellCount = 0;
+		header_text.innerHTML = 'PlayerComparison DB';
+		
+		select = document.createElement('select');
+		select.style = 'width:130px';
+		select.id = 'selectPlayerStat';
+		select.name = select.id;
+		
+		dataToProcess.forEach(function(ps){
+			option = document.createElement('option');
+			option.value = ps.playerStatsId;
+			option.text = ps.player1.playerId+"  - " + ps.player1.full_name + "  ( " + ps.player.playerId + " " + ps.player.full_name + ")";
+			select.appendChild(option);
+		});
+		
+		row.insertCell(cellCount).appendChild(select);
+		
+		cellCount = cellCount + 1;
+		div = document.createElement('div');
+
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'populate_PlayerComparison_btn';
+	    option.value = 'Populate';
+	    option.id = option.name;
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    option = document.createElement('input');
+	    option.type = 'button';
+	    option.name = 'cancel_graphics_btn';
+	    option.id = option.name;
+	    option.value = 'Cancel';
+	    option.setAttribute('onclick', "processUserSelection(this)");
+	    div.appendChild(option);
+	
+	    row.insertCell(cellCount++).appendChild(div);
+	
+	    document.getElementById('select_graphic_options_div').style.display = '';
+		break;
 	}
 }
 function removeSelectDuplicates(select_id)

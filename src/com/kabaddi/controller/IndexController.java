@@ -245,6 +245,8 @@ public class IndexController
 			return JSONArray.fromObject(kabaddiService.getNameSupers()).toString();
 		case "LT_FIXTURES_GRAPHICS-OPTIONS":	
 			return JSONArray.fromObject(kabaddiService.getTeams()).toString();
+		case "PLAYERCOMPARISON_GRAPHICS-OPTIONS":
+			return JSONArray.fromObject(KabaddiFunctions.processAllPlayerStatsComparion(kabaddiService)).toString();
 		case "RE_CONNECT":
 			session_socket = new Socket(session_Configurations.getIpAddress(), Integer.valueOf(session_Configurations.getPortNumber()));
 			print_writer = new PrintWriter(session_socket.getOutputStream(), true);

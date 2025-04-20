@@ -21,6 +21,7 @@ import com.kabaddi.model.Ground;
 import com.kabaddi.model.Match;
 import com.kabaddi.model.NameSuper;
 import com.kabaddi.model.Player;
+import com.kabaddi.model.PlayerComparison;
 import com.kabaddi.model.PlayerStats;
 import com.kabaddi.model.Team;
 import com.kabaddi.service.KabaddiService;
@@ -46,7 +47,8 @@ public class KABADDI_GIPKL extends Scene {
 	public long last_date = 0;
 	public int Whichside = 2;
 	public String logo_path = "D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Logos\\";
-	
+	public String photo_path = "C:\\Images\\GIPKL\\Photos\\";
+
 	public KABADDI_GIPKL() {
 		super();
 	}
@@ -75,14 +77,14 @@ public class KABADDI_GIPKL extends Scene {
 		
 		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":	case "POPULATE-L3-NAMESUPER":
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":case "POPULATE-MANUAL_SCOREBUG":
-		case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
+		case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":case "POPULATE-FF-PLAYER_COMPARE":
 		switch (whatToProcess.toUpperCase()) {
 		case "POPULATE-SCOREBUG": case "POPULATE-SCORELINE": case "POPULATE-TOURNAMENT_LOGO": case "POPULATE-GOLDEN_RAID":
 			scenes.get(0).setScene_path("D:\\DOAD_In_House_Everest\\Everest_Sports\\Everest_GIKPL_2025\\Scenes\\BS.sum");
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
 		case "POPULATE-FF_MATCH_ID":case "POPULATE-FF_TOURNAMENT ROULES":case "POPULATE-FF_MATCH_PROMO":case "POPULATE-FF_GRAPHICS":
-		case "POPULATE-L3-NAMESUPER":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
+		case "POPULATE-L3-NAMESUPER":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":case "POPULATE-FF-PLAYER_COMPARE":
 			scenes.get(0).setScene_path(valueToProcess.split(",")[0]);
 			scenes.get(0).scene_load(print_writer, session_selected_broadcaster);
 			break;
@@ -135,6 +137,10 @@ public class KABADDI_GIPKL extends Scene {
 					Integer.valueOf(valueToProcess.split(",")[valueToProcess.split(",").length - 2]),
 					valueToProcess.substring(valueToProcess.lastIndexOf(",")+1));
 			break;
+		case "POPULATE-FF-PLAYER_COMPARE":
+			populateFFPlayerComaprison(print_writer, KabaddiFunctions.processAllPlayerStatsComparion(kabaddiService),match,
+					valueToProcess.substring(valueToProcess.lastIndexOf(",")+1),kabaddiService);
+			break;
 		case "POPULATE-FF_TOURNAMENT ROULES":
 			  print_writer.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
 			  print_writer.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
@@ -151,7 +157,7 @@ public class KABADDI_GIPKL extends Scene {
 			break;
 		}
 			
-		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":
+		case "ANIMATE-IN-SCOREBUG": case "CLEAR-ALL": case "ANIMATE-OUT-SCOREBUG": case "RESET-ALL-ANIMATION":case "ANIMATE-IN-FF-PLAYER_COMPARE":
 		case "ANIMATE-IN-SCORELINE": case "ANIMATE-OUT": case "ANIMATE-IN-TOURNAMENT_LOGO": case "ANIMATE-IN-GOLDEN_RAID":
 		case "ANIMATE-IN-FF_MATCH_ID":case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":case "ANIMATE-IN-FF_FF_GRAPHICS":
 		case "ANIMATE-IN-L3-NAMESUPER":case "ANIMATE-IN-MANUAL_SCOREBUG":case "ANIMATE-IN-LT_GRAPHICS":case "ANIMATE-IN-L3-FIXTURES":
@@ -200,7 +206,7 @@ public class KABADDI_GIPKL extends Scene {
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tAwayRaiderClock TIMER_OFFSET 30;");
 				print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL_TIMER SET tHomeRaiderClock TIMER_OFFSET 30;");
 				break;
-			case "ANIMATE-IN-FF_MATCH_ID": case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":
+			case "ANIMATE-IN-FF_MATCH_ID": case "ANIMATE-IN-FF_TOURNAMENT ROULES":case "ANIMATE-IN-FF_MATCH_PROMO":case "ANIMATE-IN-FF-PLAYER_COMPARE":
 			case "ANIMATE-IN-FF_FF_GRAPHICS":case "ANIMATE-IN-L3-NAMESUPER":case "ANIMATE-IN-LT_GRAPHICS":case "ANIMATE-IN-L3-FIXTURES":
 				processAnimation(print_writer, "In", "START", session_selected_broadcaster,1);
 				which_graphics_onscreen = "MATCH_ID";
@@ -216,6 +222,42 @@ public class KABADDI_GIPKL extends Scene {
 	}
 
 	
+	private void populateFFPlayerComaprison(PrintWriter print_writer,List<PlayerComparison> AllPlayerStats, Match match, String id, KabaddiService kabaddiService) {
+		PlayerComparison PlayerComparison = AllPlayerStats.stream().filter(ps -> ps.getPlayerStatsId() 
+				== Integer.valueOf(id)).findAny().orElse(null);
+		
+		List<String> data_str = new ArrayList<String>();
+		print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tHeader "+ PlayerComparison.getHeader() +";");
+        
+        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubHead "+ PlayerComparison.getSubHeader() +";");
+        
+			data_str.add(PlayerComparison.getPlayer1Value1()+","+ PlayerComparison.getHeadStats1() +","+ PlayerComparison.getPlayer2Value1());
+			data_str.add(PlayerComparison.getPlayer1Value2()+","+ PlayerComparison.getHeadStats2() +","+ PlayerComparison.getPlayer2Value2());
+			data_str.add(PlayerComparison.getPlayer1Value3()+","+ PlayerComparison.getHeadStats3() +","+ PlayerComparison.getPlayer2Value3());
+			data_str.add(PlayerComparison.getPlayer1Value4()+","+ PlayerComparison.getHeadStats4() +","+ PlayerComparison.getPlayer2Value4());
+			data_str.add(PlayerComparison.getPlayer1Value5()+","+ PlayerComparison.getHeadStats5() +","+ PlayerComparison.getPlayer2Value5());
+
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgImage01 "+ photo_path +"\\"+PlayerComparison.getTeam().getTeamBadge()+"\\"
+	        		+ PlayerComparison.getPlayer().getPhoto() + KabaddiUtil.PNG_EXTENSION  +";");
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lgImage02 "+ photo_path +"\\"+PlayerComparison.getTeam1().getTeamBadge()+"\\"
+	        		+ PlayerComparison.getPlayer1().getPhoto() + KabaddiUtil.PNG_EXTENSION  +";");
+	        
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tName01 "+ PlayerComparison.getPlayer().getFull_name() +";");
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tTeam01 "+ PlayerComparison.getTeam().getTeamName1() +";");
+	        
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tName02 "+ PlayerComparison.getPlayer1().getFull_name() +";");
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tTeam02 "+ PlayerComparison.getTeam1().getTeamName1() +";");
+
+
+		for(int i=0;i<data_str.size();i++) {
+			print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0"  + (i+1)+" "+ data_str.get(i).split(",")[0] +";");
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead0"  + (i+1)+" "+ data_str.get(i).split(",")[1] +";");
+	        print_writer.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" +(i+1)+" "+ data_str.get(i).split(",")[2] +";");
+   
+		}
+        
+	}
+
 	public void processAnimation(PrintWriter print_writer, String animationName,String animationCommand, String which_broadcaster,int which_layer) throws IOException
 	{
 		switch(which_broadcaster.toUpperCase()) {
