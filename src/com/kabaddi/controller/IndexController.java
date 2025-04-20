@@ -66,6 +66,7 @@ public class IndexController
 	public static Api_pre_match api_pre_match = new Api_pre_match();
 	public static int counter;
 	public static long timestamp =0;
+	public static long timestamp_match =0;
 	
 	List<Scene> session_selected_scenes = new ArrayList<Scene>();
 	public static String session_selected_broadcaster;
@@ -242,7 +243,8 @@ public class IndexController
 			return JSONArray.fromObject(KabaddiFunctions.ReadExcel("C:\\Sports\\Kabaddi\\LT_EVERSET_EXCEL.xlsx").keySet()).toString();
 		case "NAMESUPER_GRAPHICS-OPTIONS":
 			return JSONArray.fromObject(kabaddiService.getNameSupers()).toString();
-			
+		case "LT_FIXTURES_GRAPHICS-OPTIONS":	
+			return JSONArray.fromObject(kabaddiService.getTeams()).toString();
 		case "RE_CONNECT":
 			session_socket = new Socket(session_Configurations.getIpAddress(), Integer.valueOf(session_Configurations.getPortNumber()));
 			print_writer = new PrintWriter(session_socket.getOutputStream(), true);
@@ -260,6 +262,7 @@ public class IndexController
 			session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, new ObjectMapper().readValue (new File(KabaddiUtil.KABADDI_DIRECTORY + 
 					KabaddiUtil.MATCHES_DIRECTORY + valueToProcess),Match.class));
 			
+			timestamp_match  = new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY +valueToProcess).lastModified();
 			switch (session_selected_broadcaster) {
 			case "KABADDI_GIPKL":case "KABADDI_GIPKL_AR":case "KABADDI_GIPKL_BS":
 				session_match.getApi_Match().setHomeTeam(session_match.getHomeTeam());
@@ -327,19 +330,20 @@ public class IndexController
 					}
 					counter = 0;
 				}
-				
-				if(session_match != null && !valueToProcess.equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
-						new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified())))
-				{
-					session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, new ObjectMapper().readValue
-							(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),
-					        Match.class));	
-					
-					session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
-							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
-					
+				if(timestamp_match != new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY +session_match.getMatchFileName()).lastModified()) {
+					if(session_match != null && !valueToProcess.equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
+							new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified())))
+					{
+						session_match = KabaddiFunctions.populateMatchVariables(kabaddiService, new ObjectMapper().readValue
+								(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()),
+						        Match.class));	
+						
+						session_match.setMatchFileTimeStamp(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(
+								new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.MATCHES_DIRECTORY + session_match.getMatchFileName()).lastModified()));
+						
+					}
+					timestamp_match = new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.EVENT_DIRECTORY +session_match.getMatchFileName()).lastModified();
 				}
-				
 				if(session_match != null && session_selected_broadcaster != null) {
 					if(new File(KabaddiUtil.KABADDI_DIRECTORY + KabaddiUtil.CLOCK_JSON).exists()) {
 				        try {

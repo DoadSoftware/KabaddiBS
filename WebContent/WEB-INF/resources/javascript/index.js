@@ -220,7 +220,7 @@ function processUserSelectionData(whatToProcess,dataToProcess){
 			$("#select_event_div").hide();
 			$("#match_configuration").hide();
 			$("#kabaddi_div").hide();
-			addItemsToList('LT_FIXTURES',null);
+			processKabaddiProcedures('LT_FIXTURES_GRAPHICS-OPTIONS');		
 			break;
 		}
 		
@@ -345,7 +345,7 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 		break;
 	case "POPULATE-L3-FIXTURES":
 		 value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_Row_Col'
-		 	+ $('#selectSingleSlug option:selected').val() + '.sum' +"," +$('#selectCategory option:selected').val() ;
+		 	+ $('#selectSingleSlug option:selected').val() + '.sum' +"," +$('#selectMatchPromo option:selected').val() ;
 		break;
 	case 'POPULATE-L3-NAMESUPER':
 	 	value_to_process = 'D://DOAD_In_House_Everest//Everest_Sports//Everest_GIKPL_2025//Scenes//LT_SingleSlug_'+ $('#selectSingleSlug option:selected').val() + '.sum'+","+
@@ -432,6 +432,9 @@ function processKabaddiProcedures(whatToProcess, whichInput)
 			case 'EXCEL_LT_GRAPHICS_OPTION':
 				addItemsToList('EXCEL_LT_GRAPHICS-OPTIONS', data);
 				break;	
+			case "LT_FIXTURES_GRAPHICS-OPTIONS":
+				addItemsToList('LT_FIXTURES',data);
+				break;
         	case 'POPULATE-SCOREBUG': case 'POPULATE-SCORELINE': case 'POPULATE-TOURNAMENT_LOGO': case 'POPULATE-GOLDEN_RAID':
         	case 'POPULATE-L3-NAMESUPER':case "POPULATE-MANUAL_SCOREBUG":case "POPULATE-L3-GRAPHICS":case "POPULATE-L3-FIXTURES":
         	case 'POPULATE-FF_MATCH_ID':case 'POPULATE-FF_TOURNAMENT ROULES':case 'POPULATE-FF_MATCH_PROMO':case "POPULATE-FF_GRAPHICS":
@@ -945,6 +948,22 @@ function addItemsToList(whatToProcess, dataToProcess)
 	
 	    row = tbody.insertRow();
 	    cellCount = 0;
+	    
+	    select = document.createElement('select');
+	    select.id = 'selectMatchPromo';
+	    select.name = select.id;
+	
+	    dataToProcess.forEach(function(oop) {
+	        option = document.createElement('option');
+	        option.value = oop.teamId +","+oop.teamName1;
+	        option.text = oop.teamName1;
+	        select.appendChild(option);
+	    });
+	
+	    row.insertCell(cellCount).appendChild(select);
+		
+		cellCount++
+		
 	    select = document.createElement('select');
 	    select.id = 'selectSingleSlug';
 	    select.name = select.id;
@@ -956,19 +975,8 @@ function addItemsToList(whatToProcess, dataToProcess)
 			select.appendChild(option);
 		});
 	
-	    row.insertCell(cellCount++).appendChild(select);
-	    select = document.createElement('select');
-	    select.id = 'selectCategory';
-	    select.name = select.id;
-	
-	    ["Men","Women"].forEach(function(ns) {
-			option = document.createElement('option');
-			option.value =ns;
-			option.text = ns;
-			select.appendChild(option);
-		});
-	
-	    row.insertCell(cellCount++).appendChild(select);
+	    row.insertCell(cellCount).appendChild(select);
+	    cellCount++
 	    
 	 	div = document.createElement('div');
 	    option = document.createElement('input');

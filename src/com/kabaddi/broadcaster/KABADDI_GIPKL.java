@@ -5,9 +5,11 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -130,6 +132,7 @@ public class KABADDI_GIPKL extends Scene {
 			break;
 		case "POPULATE-L3-FIXTURES":
 			populateL3Fixtures(print_writer, KabaddiFunctions.processAllFixtures(kabaddiService),match,
+					Integer.valueOf(valueToProcess.split(",")[valueToProcess.split(",").length - 2]),
 					valueToProcess.substring(valueToProcess.lastIndexOf(",")+1));
 			break;
 		case "POPULATE-FF_TOURNAMENT ROULES":
@@ -228,34 +231,48 @@ public class KABADDI_GIPKL extends Scene {
 			break;
 		}
 	}
-	private void populateL3Fixtures(PrintWriter printWriter, List<Fixture> AllFixtures, Match match, String Category) throws Exception {
+	private void populateL3Fixtures(PrintWriter printWriter, List<Fixture> AllFixtures, Match match, int teamId, String TeamName) throws Exception {
 		
 		List<Fixture> fix = new ArrayList<Fixture>();
 		
-		printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tFirstName FIXTURES;");
+		printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tFirstName "+ TeamName +";");
         
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName " + match.getTournament() + ";");
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubInfo FIXTURES;");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName ;");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubInfo NEXT 3 FIXTURES;");
         //HEADER
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead01 MATCH" + ";");
-        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead02 TIME" + ";");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead01 " + ";");
+        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatHead02 " + ";");
         
-        int count =0;
-         
-        Calendar cal = Calendar.getInstance();
-        for(Fixture fx : AllFixtures) {
-        	if(fx.getDate().equalsIgnoreCase(new SimpleDateFormat("dd-MM-yyyy").format(cal.getTime()))){
-        		if(Category.toUpperCase().equalsIgnoreCase(fx.getCategory().toUpperCase())) {
-        			fix.add(fx);	
-        		}
-        	}
+        int count = 0;
+        for (Fixture fx : AllFixtures) {
+            try {
+                if (new SimpleDateFormat("dd-MM-yyyy").parse(fx.getDate()).compareTo(new Date()) >= 0 &&
+                    (fx.getHometeamid() == teamId || fx.getAwayteamid() == teamId)) {
+                    fix.add(fx);
+                    if (++count == 3) break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
      // Body of table
+        boolean flag = false;
         for(int i=0; i <fix.size(); i++) {
         	 printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + (i+1) + "A " + 
-        			 fix.get(i).getHome_Team().getTeamName1() +" vs "+fix.get(i).getAway_Team().getTeamName1()+ ";");
+        			 " vs "+(fix.get(i).getAway_Team().getTeamName1().equalsIgnoreCase(TeamName) ? 
+        			 fix.get(i).getHome_Team().getTeamName1():fix.get(i).getAway_Team().getTeamName1())+ ";");
+        	 
              printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + (i+1) + "B " 
-        			 + " AT "+ (fix.get(i).getTime()==null ?" ":fix.get(i).getTime())  + ";");
+        			 + KabaddiFunctions.ordinal(Integer.valueOf(fix.get(i).getDate().split("-")[0].replaceFirst("0", ""))) + " " + 
+						Month.of(Integer.valueOf(fix.get(i).getDate().split("-")[1]))+ " " +
+						fix.get(i).getDate().substring(fix.get(i).getDate().lastIndexOf("-")+1)+ ";");
+             if(!flag) {
+            	 printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path
+     					+ (fix.get(i).getAway_Team().getTeamName1().equalsIgnoreCase(TeamName) ? 
+     		        	fix.get(i).getAway_Team().getTeamBadge():fix.get(i).getHome_Team().getTeamBadge()) + KabaddiUtil.PNG_EXTENSION + ";");
+            	 flag = true;
+             }
         }
         printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectRows 2 ;");
         printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET vSelectColumm "+(fix.size()-1)+" ;");
@@ -335,7 +352,10 @@ public class KABADDI_GIPKL extends Scene {
 	            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tStatValue0" + i + "E " + (rowData.get("R" + i + ".5") != null ? rowData.get("R" + i + ".5").toString().trim() : "") + ";");
 
 	        }
-	        
+
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path
+					+ "Tlogo" + KabaddiUtil.PNG_EXTENSION + ";");
+			 
 		  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
 		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
 		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*Out STOP;");
