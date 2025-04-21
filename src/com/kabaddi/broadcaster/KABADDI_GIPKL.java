@@ -370,8 +370,8 @@ public class KABADDI_GIPKL extends Scene {
 
 	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tFirstName " + 
 	    	        (rowData.get("HEADER") != null ? rowData.get("HEADER").toString().trim() : "") + ";");
-	        
-            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName " +  (rowData.get("SUB HEADER") != null ? rowData.get("SUB HEADER").toString().trim() : "") + ";");
+	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tLastName ;");
+            printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET tSubInfo " +  (rowData.get("SUB HEADER") != null ? rowData.get("SUB HEADER").toString().trim() : "") + ";");
 	        
 			int cols = rowData.get("COLS") != null ? (rowData.get("COLS") instanceof Number ? ((Number) rowData.get("COLS")).intValue() : Integer.parseInt(rowData.get("COLS").toString().trim())) : 0;
 	        int rows = rowData.get("ROWS") != null ? (rowData.get("ROWS") instanceof Number ? ((Number) rowData.get("ROWS")).intValue() : Integer.parseInt(rowData.get("ROWS").toString().trim())) : 0;
