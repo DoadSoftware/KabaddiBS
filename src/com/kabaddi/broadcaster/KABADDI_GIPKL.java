@@ -396,7 +396,7 @@ public class KABADDI_GIPKL extends Scene {
 	        }
 
 	        printWriter.println("LAYER1*EVEREST*TREEVIEW*Main*FUNCTION*TAG_CONTROL SET lg_HomeLogo " + logo_path
-					+ "Tlogo" + KabaddiUtil.PNG_EXTENSION + ";");
+					+ (rowData.get("LOGO") != null ? rowData.get("LOGO").toString().trim() : "Tlogo") + KabaddiUtil.PNG_EXTENSION + ";");
 			 
 		  printWriter.println("LAYER1*EVEREST*GLOBAL PREVIEW ON;");
 		  printWriter.println("LAYER1*EVEREST*STAGE*DIRECTOR*In STOP;");
